@@ -691,13 +691,16 @@ class PhotoTemplateApp {
     if (sel.length === 0) return;
     this._pushUndo();
     let count = 0;
+    const newSel = [];
     sel.sort((a, b) => b - a).forEach(i => {
       const p = this.photos[i];
       const copy = { ...p, id: Date.now() + '_' + Math.random(), name: p.name + ' *' };
       this.photos.splice(i + 1, 0, copy);
+      newSel.push(i + 1);
       count++;
     });
     this._rebuildListbox();
+    this._reselect(newSel);
     this._scheduleRefresh();
     this._updateStatus(count + ' foto diduplikat');
   }
@@ -719,15 +722,18 @@ class PhotoTemplateApp {
         if (num < 1) return alert('Minimal 1 copy');
         this._pushUndo();
         let count = 0;
+        const newSel = [];
         [...sel].sort((a, b) => b - a).forEach(idx => {
           const src = this.photos[idx];
           for (let i = 0; i < num; i++) {
             const copy = { ...src, id: Date.now() + '_' + Math.random(), name: src.name + ' #' + (this.photos.length + 1) };
             this.photos.splice(idx + 1, 0, copy);
+            newSel.push(idx + 1 + i);
             count++;
           }
         });
         this._rebuildListbox();
+        this._reselect(newSel);
         this._scheduleRefresh();
         this._updateStatus(count + ' copy ditambahkan');
         this._hideDialog();
