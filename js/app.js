@@ -17,7 +17,7 @@ const BUILTIN_PRESETS = [
   { name: '2R',              photo_w_cm: 6.4, photo_h_cm: 8.9, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '5R',              photo_w_cm: 12.7, photo_h_cm: 17.8, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
   { name: '6R',              photo_w_cm: 15.2, photo_h_cm: 20.3, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
-  { name: 'A4',              photo_w_cm: 21.0, photo_h_cm: 29.7, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
+  { name: 'A4',              photo_w_cm: 21.0, photo_h_cm: 29.7, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0, min_margin_mm: 0, margin_atas_mm: 0 },
   { name: 'Pasfoto 2x3',    photo_w_cm: 2.0, photo_h_cm: 3.0, wb_top_mm: 1.0, wb_bottom_mm: 1.0, wb_left_mm: 1.0, wb_right_mm: 1.0 },
   { name: 'Pasfoto 3x4',    photo_w_cm: 3.0, photo_h_cm: 4.0, wb_top_mm: 1.5, wb_bottom_mm: 1.5, wb_left_mm: 1.5, wb_right_mm: 1.5 },
   { name: 'Pasfoto 4x6',    photo_w_cm: 4.0, photo_h_cm: 6.0, wb_top_mm: 2.0, wb_bottom_mm: 2.0, wb_left_mm: 2.0, wb_right_mm: 2.0 },
@@ -1919,6 +1919,8 @@ class PhotoTemplateApp {
     if (data.wb_top_mm || data.wb_bottom_mm || data.wb_left_mm || data.wb_right_mm) {
       this.els.showWhiteBorder.checked = true;
     }
+    if (data.min_margin_mm !== undefined) this.els.minMargin.value = data.min_margin_mm;
+    if (data.margin_atas_mm !== undefined) this.els.marginAtas.value = data.margin_atas_mm;
     this.photos.forEach(p => {
       p.width = data.photo_w_cm;
       p.height = data.photo_h_cm;
@@ -1955,6 +1957,8 @@ class PhotoTemplateApp {
           wb_bottom_mm: parseFloat(this.els.wbBottom.value) || 0,
           wb_left_mm: parseFloat(this.els.wbLeft.value) || 0,
           wb_right_mm: parseFloat(this.els.wbRight.value) || 0,
+          min_margin_mm: parseFloat(this.els.minMargin.value) || 0,
+          margin_atas_mm: parseFloat(this.els.marginAtas.value) || 0,
         });
         this._savePresets();
         this._refreshPresetCombo();
