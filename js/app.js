@@ -14,6 +14,7 @@ const BUILTIN_PRESETS = [
   { name: '2R',              photo_w_cm: 6.4, photo_h_cm: 8.9, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '5R',              photo_w_cm: 12.7, photo_h_cm: 17.8, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
   { name: '6R',              photo_w_cm: 15.2, photo_h_cm: 20.3, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
+  { name: 'A4',              photo_w_cm: 21.0, photo_h_cm: 29.7, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
   { name: 'Pasfoto 2x3',    photo_w_cm: 2.0, photo_h_cm: 3.0, wb_top_mm: 1.0, wb_bottom_mm: 1.0, wb_left_mm: 1.0, wb_right_mm: 1.0 },
   { name: 'Pasfoto 3x4',    photo_w_cm: 3.0, photo_h_cm: 4.0, wb_top_mm: 1.5, wb_bottom_mm: 1.5, wb_left_mm: 1.5, wb_right_mm: 1.5 },
   { name: 'Pasfoto 4x6',    photo_w_cm: 4.0, photo_h_cm: 6.0, wb_top_mm: 2.0, wb_bottom_mm: 2.0, wb_left_mm: 2.0, wb_right_mm: 2.0 },
