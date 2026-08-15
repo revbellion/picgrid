@@ -171,7 +171,6 @@ class PhotoTemplateApp {
 
     document.getElementById('btn-add').addEventListener('click', () => els.fileInput.click());
     els.fileInput.addEventListener('change', (e) => { this._addPhotos(e.target.files); e.target.value = ''; });
-    document.getElementById('btn-paste').addEventListener('click', () => this._pasteFromClipboard());
     document.getElementById('btn-remove').addEventListener('click', () => this._removePhotos());
     document.getElementById('btn-clear').addEventListener('click', () => this._clearAll());
     document.getElementById('btn-move-up').addEventListener('click', () => this._moveUp());
