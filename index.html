@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Template Photos Maker</title>
-<link rel="stylesheet" href="css/styles.css?v=20260815e">
+<link rel="stylesheet" href="css/styles.css?v=20260815f">
 </head>
 <body>
 <div id="app">
@@ -134,7 +134,21 @@
       </div>
 
       <div id="action-bar">
-<button id="btn-page-position" class="btn btn-secondary" data-i18n="pagePosition">Posisi Halaman...</button>
+        <button id="btn-page-position" class="btn btn-secondary" data-i18n="pagePosition">Posisi Halaman...</button>
+        <label data-i18n="paper" class="action-label">Kertas</label>
+        <select id="paper-size" class="input-select-sm">
+          <option value="a4">A4</option>
+          <option value="a5">A5</option>
+          <option value="a3">A3</option>
+          <option value="legal">Legal</option>
+          <option value="custom">Custom</option>
+        </select>
+        <span id="paper-custom-row" style="display:none">
+          <input type="number" id="paper-w" class="input-num" value="210" min="50" max="600" step="1">
+          <span>x</span>
+          <input type="number" id="paper-h" class="input-num" value="297" min="50" max="600" step="1">
+          <span>mm</span>
+        </span>
         <button id="btn-orientation" class="btn btn-secondary">Orientasi: Potret</button>
         <button id="btn-print" class="btn btn-primary" data-i18n="print">Print</button>
         <button id="btn-export-png" class="btn btn-success" data-i18n="exportPng">Export PNG</button>
@@ -198,9 +212,10 @@
 
 <input type="file" id="file-input" multiple accept="image/*" style="display:none">
 
-<script src="js/app.js?v=20260815u"></script>
+<script src="js/app.js?v=20260815v"></script>
 </body>
 </html>
+
 
 
 

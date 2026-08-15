@@ -530,6 +530,12 @@ body.drag-active, body.drag-active * { -webkit-user-select: none; user-select: n
   padding: 6px 0;
 }
 
+#action-bar .action-label {
+  margin-left: 8px;
+  color: var(--text-dim, #888);
+  font-size: 12px;
+}
+
 /* ---- Status bar ---- */
 #status-bar {
   padding: 8px 12px;

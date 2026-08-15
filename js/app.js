@@ -3,6 +3,13 @@
 
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
+const PAPER_SIZES = {
+  a4: { label: 'A4', w: 210, h: 297 },
+  a5: { label: 'A5', w: 148, h: 210 },
+  a3: { label: 'A3', w: 297, h: 420 },
+  legal: { label: 'Legal', w: 216, h: 356 },
+  custom: { label: 'Custom', w: 210, h: 297 },
+};
 const DPI = 300;
 const CLIP_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.tif', '.webp', '.ico'];
 
@@ -80,6 +87,7 @@ const I18N = {
   'preview':          { id: 'Preview', en: 'Preview' },
   'pagePosition':     { id: 'Posisi Halaman...', en: 'Page Position...' },
   'orientation':      { id: 'Orientasi', en: 'Orientation' },
+  'paper':            { id: 'Kertas', en: 'Paper' },
   'portrait':         { id: 'Potret', en: 'Portrait' },
   'landscape':        { id: 'Lanskap', en: 'Landscape' },
   'print':            { id: 'Print', en: 'Print' },
@@ -215,6 +223,9 @@ class PhotoTemplateApp {
     this.currentPage = 0;
     this.position = 'as-doc';
     this.orientation = 'portrait';
+    this.paperSize = 'a4';
+    this.customW = 210;
+    this.customH = 297;
     this.autoRotate = true;
     this.tileGrid = null;
     this._filterCache = new Map();
@@ -226,15 +237,24 @@ class PhotoTemplateApp {
     this._refreshPresetCombo();
     this._restoreState();
     this._updateOrientationBtn();
+    this._syncPaperUI();
     this.els.autoRotate.checked = this.autoRotate;
     this._syncTileUI();
     this._scheduleRefresh();
     this._applyLang();
   }
 
-  // Dimensi halaman (mm) sesuai orientasi: portrait 210x297, landscape 297x210
-  _pageW() { return this.orientation === 'landscape' ? A4_HEIGHT_MM : A4_WIDTH_MM; }
-  _pageH() { return this.orientation === 'landscape' ? A4_WIDTH_MM : A4_HEIGHT_MM; }
+  // Dimensi halaman (mm) sesuai ukuran kertas + orientasi
+  _paper() { return PAPER_SIZES[this.paperSize] || PAPER_SIZES.a4; }
+  _paperW() { return this.paperSize === 'custom' ? this.customW : this._paper().w; }
+  _paperH() { return this.paperSize === 'custom' ? this.customH : this._paper().h; }
+  _pageW() { return this.orientation === 'landscape' ? this._paperH() : this._paperW(); }
+  _pageH() { return this.orientation === 'landscape' ? this._paperW() : this._paperH(); }
+  _paperLabel() {
+    const s = this._paper();
+    if (this.paperSize === 'custom') return 'Custom (' + Math.round(this.customW) + 'x' + Math.round(this.customH) + 'mm)';
+    return s.label + ' (' + s.w + 'x' + s.h + 'mm)';
+  }
 
   _minMargin() { const v = parseFloat(this.els.minMargin.value); return isNaN(v) ? 5 : v; }
   _marginAtas() { const v = parseFloat(this.els.marginAtas.value); return isNaN(v) ? 6 : v; }
@@ -268,6 +288,10 @@ class PhotoTemplateApp {
       fileInput: $('file-input'),
       contextMenu: $('context-menu'),
       orientationBtn: $('btn-orientation'),
+      paperCombo: $('paper-size'),
+      paperCustomRow: $('paper-custom-row'),
+      paperW: $('paper-w'),
+      paperH: $('paper-h'),
       btnLang: $('btn-lang'),
       autoRotate: $('auto-rotate'),
       tileEnable: $('tile-enable'),
@@ -336,6 +360,23 @@ class PhotoTemplateApp {
     document.getElementById('btn-page-position').addEventListener('click', () => this._openPositionDialog());
     document.getElementById('btn-lang').addEventListener('click', () => this._toggleLang());
     document.getElementById('btn-orientation').addEventListener('click', () => this._toggleOrientation());
+    els.paperCombo.addEventListener('change', () => {
+      this.paperSize = els.paperCombo.value;
+      this._syncPaperUI();
+      this._saveState();
+      this._scheduleRefresh();
+      this._updatePreview();
+    });
+    els.paperW.addEventListener('input', () => {
+      const v = parseFloat(els.paperW.value);
+      if (v >= 50 && v <= 600) { this.customW = v; this._scheduleRefresh(); this._updatePreview(); }
+    });
+    els.paperH.addEventListener('input', () => {
+      const v = parseFloat(els.paperH.value);
+      if (v >= 50 && v <= 600) { this.customH = v; this._scheduleRefresh(); this._updatePreview(); }
+    });
+    els.paperW.addEventListener('change', () => this._saveState());
+    els.paperH.addEventListener('change', () => this._saveState());
     document.getElementById('btn-print').addEventListener('click', () => this._printTemplate());
     document.getElementById('btn-save-preset').addEventListener('click', () => this._saveCurrentPresetAs());
     document.getElementById('btn-delete-preset').addEventListener('click', () => this._deletePreset());
@@ -1156,6 +1197,14 @@ class PhotoTemplateApp {
   }
 
   // Ganti orientasi halaman potret <-> lanskap
+  _syncPaperUI() {
+    if (!this.els.paperCombo) return;
+    this.els.paperCombo.value = this.paperSize;
+    this.els.paperCustomRow.style.display = this.paperSize === 'custom' ? '' : 'none';
+    this.els.paperW.value = this.customW;
+    this.els.paperH.value = this.customH;
+  }
+
   _toggleOrientation() {
     this.orientation = this.orientation === 'landscape' ? 'portrait' : 'landscape';
     this.panX = 0;
@@ -1164,7 +1213,7 @@ class PhotoTemplateApp {
     this._updateOrientationBtn();
     this._scheduleRefresh();
     this._saveState();
-    this._updateStatus(this._t('st.orientation') + (this.orientation === 'landscape' ? this._t('landscape') + ' (297x210mm)' : this._t('portrait') + ' (210x297mm)'));
+    this._updateStatus(this._t('st.orientation') + (this.orientation === 'landscape' ? this._t('landscape') + ' (' + this._pageW() + 'x' + this._pageH() + 'mm)' : this._t('portrait') + ' (' + this._pageW() + 'x' + this._pageH() + 'mm)'));
   }
 
   _updateOrientationBtn() {
@@ -1678,7 +1727,7 @@ class PhotoTemplateApp {
     ctx.fillStyle = '#888';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('A4 (' + this._pageW() + 'x' + this._pageH() + 'mm)', ox + a4_w / 2, oy + a4_h + 16);
+    ctx.fillText(this._paperLabel(), ox + a4_w / 2, oy + a4_h + 16);
 
     const hasBorder = this.els.showBorder.checked;
     const hasCutlines = this.els.showCutlines.checked;
@@ -2097,12 +2146,11 @@ class PhotoTemplateApp {
     const images = this.allPages.map(([start]) => this._renderPage(start));
     const imgTags = images.map(c => `<img src="${c.toDataURL('image/png')}">`).join('');
 
-    // Sesuaikan ukuran kertas cetak dengan orientasi (override CSS print statis)
+    // Sesuaikan ukuran kertas cetak dengan kertas + orientasi (override CSS print statis)
     const orientStyle = document.createElement('style');
     orientStyle.id = 'print-orient-style';
-    orientStyle.textContent = this.orientation === 'landscape'
-      ? '@page { size: A4 landscape; margin: 0; } @media print { html, body { width: 297mm; height: 210mm; } #print-container img { width: 297mm; height: 210mm; } }'
-      : '@page { size: A4 portrait; margin: 0; } @media print { html, body { width: 210mm; height: 297mm; } #print-container img { width: 210mm; height: 297mm; } }';
+    const pw = this._pageW(), ph = this._pageH();
+    orientStyle.textContent = '@page { size: ' + pw + 'mm ' + ph + 'mm; margin: 0; } @media print { html, body { width: ' + pw + 'mm; height: ' + ph + 'mm; } #print-container img { width: ' + pw + 'mm; height: ' + ph + 'mm; } }';
     document.head.appendChild(orientStyle);
 
     const container = document.createElement('div');
@@ -2130,6 +2178,9 @@ class PhotoTemplateApp {
       localStorage.setItem('a4-photos-state', JSON.stringify(data));
       localStorage.setItem('a4-photos-position', this.position || 'as-doc');
       localStorage.setItem('a4-photos-orientation', this.orientation || 'portrait');
+      localStorage.setItem('a4-photos-paper', this.paperSize || 'a4');
+      localStorage.setItem('a4-photos-paper-w', this.customW || 210);
+      localStorage.setItem('a4-photos-paper-h', this.customH || 297);
       localStorage.setItem('a4-photos-autorotate', this.autoRotate ? '1' : '0');
       localStorage.setItem('a4-photos-tile', this.tileGrid || '');
     } catch (e) {
@@ -2145,6 +2196,12 @@ class PhotoTemplateApp {
       if (!Array.isArray(data) || data.length === 0) return;
       this.position = localStorage.getItem('a4-photos-position') || 'as-doc';
       this.orientation = localStorage.getItem('a4-photos-orientation') === 'landscape' ? 'landscape' : 'portrait';
+      const ps = localStorage.getItem('a4-photos-paper');
+      if (ps && PAPER_SIZES[ps]) this.paperSize = ps;
+      const pw = parseFloat(localStorage.getItem('a4-photos-paper-w'));
+      const ph = parseFloat(localStorage.getItem('a4-photos-paper-h'));
+      if (pw >= 50 && pw <= 600) this.customW = pw;
+      if (ph >= 50 && ph <= 600) this.customH = ph;
       this.autoRotate = localStorage.getItem('a4-photos-autorotate') !== '0';
       const t = localStorage.getItem('a4-photos-tile');
       if (t && /^\d+x\d+$/.test(t)) {
