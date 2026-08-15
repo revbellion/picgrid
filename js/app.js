@@ -80,6 +80,9 @@ class PhotoTemplateApp {
   _pageW() { return this.orientation === 'landscape' ? A4_HEIGHT_MM : A4_WIDTH_MM; }
   _pageH() { return this.orientation === 'landscape' ? A4_WIDTH_MM : A4_HEIGHT_MM; }
 
+  _minMargin() { const v = parseFloat(this.els.minMargin.value); return isNaN(v) ? 5 : v; }
+  _marginAtas() { const v = parseFloat(this.els.marginAtas.value); return isNaN(v) ? 6 : v; }
+
   // ---- DOM references ----
   _cacheDom() {
     const $ = (id) => document.getElementById(id);
@@ -743,7 +746,7 @@ class PhotoTemplateApp {
     const src = this.photos[sel[0]];
     const w_mm = src.width * 10;
     const h_mm = src.height * 10;
-    const min_m = parseFloat(this.els.minMargin.value) || 5;
+    const min_m = this._minMargin();
 
     if (w_mm > this._pageW() - 2 * min_m || h_mm > this._pageH() - 2 * min_m) {
       return alert('Ukuran foto terlalu besar untuk halaman');
@@ -958,7 +961,7 @@ class PhotoTemplateApp {
   // Terapkan posisi global ke rowsData (satuan mm) + hitung margin atas/bawah
   _applyPagePosition(rowsData) {
     const A4_W = this._pageW(), A4_H = this._pageH();
-    const minMargin = parseFloat(this.els.minMargin.value) || 5;
+    const minMargin = this._minMargin();
     if (!rowsData || rowsData.length === 0) return rowsData;
 
     // Geometri blok konten (koordinat sudah absolut di A4)
@@ -1252,7 +1255,7 @@ class PhotoTemplateApp {
   }
 
   _calculatePages() {
-    const minMargin = parseFloat(this.els.minMargin.value) || 5;
+    const minMargin = this._minMargin();
     const A4_W = this._pageW();
     const A4_H = this._pageH();
     this.allPages = [];
@@ -1279,8 +1282,8 @@ class PhotoTemplateApp {
   }
 
   _calculateLayout() {
-    const minMargin = parseFloat(this.els.minMargin.value) || 5;
-    const marginAtas = parseFloat(this.els.marginAtas.value) || 6;
+    const minMargin = this._minMargin();
+    const marginAtas = this._marginAtas();
     if (minMargin < 0) { this.rowsData = []; return false; }
 
     const A4_W = this._pageW();
@@ -1476,7 +1479,7 @@ class PhotoTemplateApp {
       // Mode tile: garis vertikal pemisah kolom
       if (this.tileGrid) {
         const [cols] = this._tileColsRows();
-        const minM = parseFloat(this.els.minMargin.value) || 5;
+        const minM = this._minMargin();
         const tileW = (this._pageW() - 2 * minM) / cols;
         for (let c = 1; c < cols; c++) {
           const x = ox + (minM + c * tileW) * scale;
@@ -1670,7 +1673,7 @@ class PhotoTemplateApp {
     const a4H = Math.round(this._pageH() * pxPerMm);
     const A4_W = this._pageW();
     const A4_H = this._pageH();
-    const minMargin = parseFloat(this.els.minMargin.value) || 5;
+    const minMargin = this._minMargin();
 
     let rowsData;
     if (this.tileGrid) {
@@ -1681,7 +1684,7 @@ class PhotoTemplateApp {
       const h_mm_list = this.photos.map(p => p.height * 10);
       const [rd, _] = this._packRows(w_mm_list, h_mm_list, start, this.photos.length, A4_W, A4_H, minMargin);
       if (rd && rd.length > 0) {
-        const marginAtas = parseFloat(this.els.marginAtas.value) || 6;
+        const marginAtas = this._marginAtas();
         let offsetY;
         if (marginAtas > 0) {
           offsetY = marginAtas;
