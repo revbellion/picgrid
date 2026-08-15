@@ -7,11 +7,11 @@ const DPI = 300;
 const CLIP_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.tif', '.webp', '.ico'];
 
 const BUILTIN_PRESETS = [
-  { name: 'Polaroid Mini 5x7.5',      photo_w_cm: 5.0,  photo_h_cm: 7.5,  wb_top_mm: 2.5, wb_bottom_mm: 2.5, wb_left_mm: 2.5, wb_right_mm: 2.5 },
-  { name: 'Polaroid Card 6x9',        photo_w_cm: 6.0,  photo_h_cm: 9.0,  wb_top_mm: 3.0, wb_bottom_mm: 3.0, wb_left_mm: 3.0, wb_right_mm: 3.0 },
-  { name: 'Polaroid Square 9x9',      photo_w_cm: 9.0,  photo_h_cm: 9.0,  wb_top_mm: 4.5, wb_bottom_mm: 4.5, wb_left_mm: 4.5, wb_right_mm: 4.5 },
-  { name: 'Polaroid Portrait 8.9x12.7', photo_w_cm: 8.9, photo_h_cm: 12.7, wb_top_mm: 4.5, wb_bottom_mm: 4.5, wb_left_mm: 4.5, wb_right_mm: 4.5 },
-  { name: 'Polaroid Landscape 8.9x12.7', photo_w_cm: 12.7, photo_h_cm: 8.9, wb_top_mm: 4.5, wb_bottom_mm: 4.5, wb_left_mm: 4.5, wb_right_mm: 4.5 },
+  { name: 'Polaroid Go',               photo_w_cm: 5.4,  photo_h_cm: 6.6,  wb_top_mm: 2.5, wb_bottom_mm: 2.5, wb_left_mm: 2.5, wb_right_mm: 2.5 },
+  { name: 'Polaroid Mini',             photo_w_cm: 5.4,  photo_h_cm: 8.6,  wb_top_mm: 2.5, wb_bottom_mm: 2.5, wb_left_mm: 2.5, wb_right_mm: 2.5 },
+  { name: 'Polaroid Square',           photo_w_cm: 7.2,  photo_h_cm: 8.6,  wb_top_mm: 3.5, wb_bottom_mm: 3.5, wb_left_mm: 3.5, wb_right_mm: 3.5 },
+  { name: 'Polaroid Wide',             photo_w_cm: 8.6,  photo_h_cm: 10.8, wb_top_mm: 4.5, wb_bottom_mm: 4.5, wb_left_mm: 4.5, wb_right_mm: 4.5 },
+  { name: 'Polaroid Original 600',     photo_w_cm: 8.85, photo_h_cm: 10.75, wb_top_mm: 4.5, wb_bottom_mm: 4.5, wb_left_mm: 4.5, wb_right_mm: 4.5 },
   { name: '3R',              photo_w_cm: 8.9, photo_h_cm: 12.7, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '4R',              photo_w_cm: 10.2, photo_h_cm: 15.2, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '2R',              photo_w_cm: 6.4, photo_h_cm: 8.9, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
