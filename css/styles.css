@@ -67,6 +67,13 @@ body {
   margin-top: 2px;
   flex-basis: 100%;
 }
+#header .credits {
+  font-size: 11px;
+  color: var(--text-dim, #888);
+  margin-top: -4px;
+  opacity: 0.8;
+  flex-basis: 100%;
+}
 
 /* ---- Card ---- */
 .card {
