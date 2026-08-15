@@ -42,8 +42,150 @@ const POS_SHORT = {
   'bottom-left': 'BL', 'bottom-right': 'BR',
 };
 
+const I18N = {
+  'lang.toggle':      { id: 'Ganti bahasa', en: 'Switch language' },
+  'subtitle':         { id: 'Susun, atur, dan cetak foto dalam layout A4 dengan rapi.', en: 'Arrange, adjust, and print photos neatly in an A4 layout.' },
+  'sizeMargin':       { id: 'Ukuran & Margin', en: 'Size & Margin' },
+  'width':            { id: 'Lebar', en: 'Width' },
+  'height':           { id: 'Tinggi', en: 'Height' },
+  'minMargin':        { id: 'Min Margin', en: 'Min Margin' },
+  'marginTop':        { id: 'Margin Atas', en: 'Top Margin' },
+  'border':           { id: 'Border', en: 'Border' },
+  'thickness':        { id: 'Tebal', en: 'Thickness' },
+  'hairline':         { id: 'Hairline', en: 'Hairline' },
+  'cutLines':         { id: 'Garis Potong', en: 'Cut Lines' },
+  'autoRotate':       { id: 'Auto-rotate', en: 'Auto-rotate' },
+  'mode':             { id: 'Mode', en: 'Mode' },
+  'modeHint':         { id: 'fill=potong  fit=muat  stretch=tarik', en: 'fill=crop  fit=contain  stretch=stretch' },
+  'tile':             { id: 'Tile (bagi halaman rata)', en: 'Tile (divide page evenly)' },
+  'rows':             { id: 'Baris', en: 'Rows' },
+  'cols':             { id: 'Kolom', en: 'Columns' },
+  'tileHint':         { id: 'canvas dibagi rata sesuai Baris \u00D7 Kolom', en: 'canvas divided evenly by Rows \u00D7 Columns' },
+  'whiteBorder':      { id: 'Border Putih', en: 'White Border' },
+  'top':              { id: 'Atas', en: 'Top' },
+  'bottom':           { id: 'Bawah', en: 'Bottom' },
+  'left':             { id: 'Kiri', en: 'Left' },
+  'right':            { id: 'Kanan', en: 'Right' },
+  'noPhotos':         { id: 'Belum ada foto', en: 'No photos yet' },
+  'prevPage':         { id: 'Halaman sebelumnya', en: 'Previous page' },
+  'nextPage':         { id: 'Halaman selanjutnya', en: 'Next page' },
+  'preview':          { id: 'Preview', en: 'Preview' },
+  'pagePosition':     { id: 'Posisi Halaman...', en: 'Page Position...' },
+  'orientation':      { id: 'Orientasi', en: 'Orientation' },
+  'portrait':         { id: 'Potret', en: 'Portrait' },
+  'landscape':        { id: 'Lanskap', en: 'Landscape' },
+  'print':            { id: 'Print', en: 'Print' },
+  'exportPng':        { id: 'Export PNG', en: 'Export PNG' },
+  'preset':           { id: 'Preset', en: 'Preset' },
+  'savePreset':       { id: 'Simpan Preset', en: 'Save Preset' },
+  'delete':           { id: 'Hapus', en: 'Delete' },
+  'addPhoto':         { id: '+ Tambah Foto', en: '+ Add Photos' },
+  'remove':           { id: 'Hapus', en: 'Remove' },
+  'clearAll':         { id: 'Hapus Semua', en: 'Clear All' },
+  'fillAllSlots':     { id: 'Isi Semua Slot', en: 'Fill All Slots' },
+  'listPlaceholder':  { id: 'Drag &amp; drop foto di sini<br>atau klik + Tambah Foto', en: 'Drag &amp; drop photos here<br>or click + Add Photos' },
+  'ready':            { id: '\u25CF Siap', en: '\u25CF Ready' },
+  'cm.setSize':       { id: 'Set Ukuran...', en: 'Set Size...' },
+  'cm.rotateCw':      { id: 'Rotate 90\u00B0 CW', en: 'Rotate 90\u00B0 CW' },
+  'cm.rotateCcw':     { id: 'Rotate 90\u00B0 CCW', en: 'Rotate 90\u00B0 CCW' },
+  'cm.rotate180':     { id: 'Rotate 180\u00B0', en: 'Rotate 180\u00B0' },
+  'cm.flipH':         { id: 'Flip Horizontal', en: 'Flip Horizontal' },
+  'cm.flipV':         { id: 'Flip Vertical', en: 'Flip Vertical' },
+  'cm.flipRatio':     { id: 'Flip Rasio', en: 'Flip Ratio' },
+  'cm.duplicate':     { id: 'Duplikat...', en: 'Duplicate...' },
+  'cm.color':         { id: 'Warna (Normal)', en: 'Color (Normal)' },
+  'cm.gray':          { id: 'Grayscale', en: 'Grayscale' },
+  'cm.bw':            { id: 'Black &amp; White', en: 'Black &amp; White' },
+  'dlg.setSize':      { id: 'Set Ukuran Foto', en: 'Set Photo Size' },
+  'dlg.pagePosition': { id: 'Posisi Halaman', en: 'Page Position' },
+  'dlg.savePreset':   { id: 'Simpan Preset', en: 'Save Preset' },
+  'dlg.duplicate':    { id: 'Duplikat', en: 'Duplicate' },
+  'dlg.ok':           { id: 'OK', en: 'OK' },
+  'dlg.cancel':       { id: 'Batal', en: 'Cancel' },
+  'dlg.close':        { id: 'Tutup', en: 'Close' },
+  'dlg.copiesPer':    { id: 'Jumlah copy per foto:', en: 'Number of copies per photo:' },
+  'dlg.presetName':   { id: 'Nama Preset:', en: 'Preset Name:' },
+  'dlg.presetPh':     { id: 'Nama preset...', en: 'Preset name...' },
+  'pos.hint':         { id: 'Atur posisi blok foto di dalam halaman. Berlaku untuk semua halaman. Pilih "As in Document" untuk kembali ke susunan otomatis (mulai dari margin atas).', en: 'Set the position of the photo block on the page. Applies to all pages. Choose "As in Document" to return to automatic layout (starting from the top margin).' },
+  'pos.asDoc':        { id: 'As in Document (otomatis)', en: 'As in Document (automatic)' },
+  'pos.fitPage':      { id: 'Fit to Page (isi penuh 1 halaman)', en: 'Fit to Page (fill 1 full page)' },
+  'st.noFile':        { id: 'Tidak ada file terdeteksi. Coba extract dulu atau gunakan tombol Tambah Foto.', en: 'No files detected. Try extracting first or use the Add Photos button.' },
+  'st.noImgZip':      { id: 'Tidak ada file gambar atau ZIP. Coba extract dulu.', en: 'No image files or ZIP found. Try extracting first.' },
+  'st.noImgInZip':    { id: 'Tidak ada gambar ditemukan dalam ZIP', en: 'No images found in the ZIP' },
+  'st.extracted':     { id: ' gambar diekstrak dari ZIP', en: ' images extracted from ZIP' },
+  'st.zipFailed':     { id: 'Gagal membaca ZIP: ', en: 'Failed to read ZIP: ' },
+  'st.added':         { id: ' foto ditambahkan', en: ' photos added' },
+  'st.addedFailed':   { id: ' foto ditambahkan (', en: ' photos added (' },
+  'st.failed':        { id: ' gagal)', en: ' failed)' },
+  'st.addedClip':     { id: ' foto ditambahkan dari clipboard', en: ' photos added from clipboard' },
+  'st.clipEmpty':     { id: 'Clipboard tidak berisi gambar', en: 'Clipboard contains no image' },
+  'st.clipFailed':    { id: 'Gagal membaca clipboard', en: 'Failed to read clipboard' },
+  'st.remaining':     { id: ' foto tersisa', en: ' photos remaining' },
+  'st.cleared':       { id: 'Semua foto dihapus', en: 'All photos removed' },
+  'st.duplicated':    { id: ' foto diduplikat', en: ' photos duplicated' },
+  'st.copiesAdded':   { id: ' copy ditambahkan', en: ' copies added' },
+  'st.rotated':       { id: 'Rotasi ', en: 'Rotated ' },
+  'st.flipped':       { id: 'Flip ', en: 'Flipped ' },
+  'st.ratioFlipped':  { id: 'Rasio ', en: 'Ratio ' },
+  'st.ratioFlipped2': { id: ' foto dibalik', en: ' photos flipped' },
+  'st.reordered':     { id: 'Urutan foto diubah', en: 'Photo order changed' },
+  'st.undo':          { id: 'Undo', en: 'Undo' },
+  'st.restored':      { id: ' foto dipulihkan', en: ' photos restored' },
+  'st.presetApplied': { id: 'Preset \'', en: 'Preset \'' },
+  'st.appliedTail':   { id: '\' diterapkan', en: '\' applied' },
+  'st.presetSaved':   { id: '\' tersimpan', en: '\' saved' },
+  'st.presetDeleted': { id: '\' dihapus', en: '\' deleted' },
+  'st.processing':    { id: 'Memproses ', en: 'Processing ' },
+  'st.pages':         { id: ' halaman...', en: ' pages...' },
+  'st.pageDone':      { id: ' halaman selesai', en: ' pages done' },
+  'st.done':          { id: 'Selesai! ', en: 'Done! ' },
+  'st.savedPages':    { id: ' halaman tersimpan', en: ' pages saved' },
+  'st.sheet':         { id: '1 lembar (', en: '1 sheet (' },
+  'st.copies':        { id: ' copy)', en: ' copies)' },
+  'st.position':      { id: 'Posisi: ', en: 'Position: ' },
+  'st.orientation':   { id: 'Orientasi: ', en: 'Orientation: ' },
+  'info.rows':        { id: ' baris, ', en: ' rows, ' },
+  'info.photos':      { id: ' foto  |  Atas: ', en: ' photos  |  Top: ' },
+  'info.bottom':      { id: 'mm  |  Bawah: ', en: 'mm  |  Bottom: ' },
+  'info.pos':         { id: 'mm  |  Posisi: ', en: 'mm  |  Position: ' },
+  'info.tile':        { id: 'mm  |  Tile: ', en: 'mm  |  Tile: ' },
+  'info.tooBig':      { id: 'Foto tidak cukup muat di A4', en: 'Photos do not fit on A4' },
+  'info.selected':    { id: ' terpilih', en: ' selected' },
+  'al.selectFirst':   { id: 'Pilih foto yang ingin diduplikat', en: 'Select the photo to duplicate' },
+  'al.selectFirst2':  { id: 'Pilih foto yang ingin diduplikat di daftar', en: 'Select the photo to duplicate in the list' },
+  'al.min1copy':      { id: 'Minimal 1 copy', en: 'At least 1 copy' },
+  'al.addPhoto1':     { id: 'Tambahkan minimal 1 foto', en: 'Add at least 1 photo' },
+  'al.tooBigPage':    { id: 'Ukuran foto terlalu besar untuk halaman', en: 'Photo size is too large for the page' },
+  'al.notFit':        { id: 'Foto tidak cukup muat', en: 'Not enough photos to fit' },
+  'al.sizeZero':      { id: 'Ukuran harus > 0', en: 'Size must be > 0' },
+  'al.biggerPage':    { id: 'Foto lebih besar dari halaman', en: 'Photo is bigger than the page' },
+  'al.noFit':         { id: 'Tidak ada foto yang muat', en: 'No photos fit' },
+  'al.presetEmpty':   { id: 'Nama preset tidak boleh kosong', en: 'Preset name cannot be empty' },
+  'al.overwrite':     { id: '\' sudah ada. Timpa?', en: '\' already exists. Overwrite?' },
+  'al.builtin':       { id: 'Preset bawaan tidak bisa dihapus', en: 'Built-in presets cannot be deleted' },
+  'al.deletePreset':  { id: 'Hapus preset "', en: 'Delete preset "' },
+  'al.deleteTail':    { id: '"?', en: '"?' },
+  'cf.clearAll':      { id: 'Hapus semua foto?', en: 'Remove all photos?' },
+  'dragHint':         { id: 'Geser untuk urutkan', en: 'Drag to reorder' },
+  'choosePreset':     { id: '-- Pilih Preset --', en: '-- Choose Preset --' },
+  'addPreviewHint':   { id: 'Tambahkan foto untuk melihat preview', en: 'Add photos to see the preview' },
+};
+
+const POS_BTN = {
+  'top-left':     { id: 'Atas Kiri', en: 'Top Left' },
+  'top-center':   { id: 'Atas Tengah', en: 'Top Center' },
+  'top-right':    { id: 'Atas Kanan', en: 'Top Right' },
+  'left-center':  { id: 'Kiri Tengah', en: 'Left Center' },
+  'center':       { id: 'Tengah', en: 'Center' },
+  'right-center': { id: 'Kanan Tengah', en: 'Right Center' },
+  'bottom-left':  { id: 'Bawah Kiri', en: 'Bottom Left' },
+  'bottom-center':{ id: 'Bawah Tengah', en: 'Bottom Center' },
+  'bottom-right': { id: 'Bawah Kanan', en: 'Bottom Right' },
+};
+
 class PhotoTemplateApp {
   constructor() {
+    this.lang = localStorage.getItem('template-photos-lang') === 'en' ? 'en' : 'id';
     this.photos = [];
     this.undoStack = [];
     this.zoomFactor = 1;
@@ -74,6 +216,7 @@ class PhotoTemplateApp {
     this.els.autoRotate.checked = this.autoRotate;
     this._syncTileUI();
     this._scheduleRefresh();
+    this._applyLang();
   }
 
   // Dimensi halaman (mm) sesuai orientasi: portrait 210x297, landscape 297x210
@@ -112,6 +255,7 @@ class PhotoTemplateApp {
       fileInput: $('file-input'),
       contextMenu: $('context-menu'),
       orientationBtn: $('btn-orientation'),
+      btnLang: $('btn-lang'),
       autoRotate: $('auto-rotate'),
       tileEnable: $('tile-enable'),
       tileRows: $('tile-rows'),
@@ -176,6 +320,7 @@ class PhotoTemplateApp {
     document.getElementById('btn-fill').addEventListener('click', () => this._fillAllSlots());
     document.getElementById('btn-export-png').addEventListener('click', () => this._exportPng());
     document.getElementById('btn-page-position').addEventListener('click', () => this._openPositionDialog());
+    document.getElementById('btn-lang').addEventListener('click', () => this._toggleLang());
     document.getElementById('btn-orientation').addEventListener('click', () => this._toggleOrientation());
     document.getElementById('btn-print').addEventListener('click', () => this._printTemplate());
     document.getElementById('btn-save-preset').addEventListener('click', () => this._saveCurrentPresetAs());
@@ -278,7 +423,7 @@ class PhotoTemplateApp {
     } catch {}
 
     if (files.length === 0) {
-      this._updateStatus('Tidak ada file terdeteksi. Coba extract dulu atau gunakan tombol Tambah Foto.');
+      this._updateStatus(this._t('st.noFile'));
       return;
     }
 
@@ -312,7 +457,7 @@ class PhotoTemplateApp {
       this._addPhotos(images);
     }
     if (images.length === 0 && archives.length === 0) {
-      this._updateStatus('Tidak ada file gambar atau ZIP. Coba extract dulu.');
+      this._updateStatus(this._t('st.noImgZip'));
     }
   }
 
@@ -348,7 +493,7 @@ class PhotoTemplateApp {
       });
 
       if (imageFiles.length === 0) {
-        this._updateStatus('Tidak ada gambar ditemukan dalam ZIP');
+        this._updateStatus(this._t('st.noImgInZip'));
         return;
       }
 
@@ -375,9 +520,9 @@ class PhotoTemplateApp {
         reader.readAsDataURL(blob);
       }
       this._rebuildListbox();
-      this._updateStatus(imageFiles.length + ' gambar diekstrak dari ZIP');
+      this._updateStatus(imageFiles.length + this._t('st.extracted'));
     } catch (e) {
-      this._updateStatus('Gagal membaca ZIP: ' + e.message);
+      this._updateStatus(this._t('st.zipFailed') + e.message);
     }
   }
 
@@ -590,7 +735,7 @@ class PhotoTemplateApp {
           if (loaded >= pending) {
             this._rebuildListbox();
             this._refreshNow();
-            this._updateStatus(loaded + ' foto ditambahkan');
+            this._updateStatus(loaded + this._t('st.added'));
           }
         };
         img.onerror = () => {
@@ -598,7 +743,7 @@ class PhotoTemplateApp {
           if (loaded >= pending) {
             this._rebuildListbox();
             this._refreshNow();
-            this._updateStatus(loaded + ' foto ditambahkan (' + (pending - loaded) + ' gagal)');
+            this._updateStatus(loaded + this._t('st.addedFailed') + (pending - loaded) + this._t('st.failed'));
           }
         };
         img.src = e.target.result;
@@ -608,7 +753,7 @@ class PhotoTemplateApp {
         if (loaded >= pending) {
           this._rebuildListbox();
           this._refreshNow();
-          this._updateStatus(loaded + ' foto ditambahkan (' + (pending - loaded) + ' gagal)');
+          this._updateStatus(loaded + this._t('st.addedFailed') + (pending - loaded) + this._t('st.failed'));
         }
       };
       reader.readAsDataURL(f);
@@ -655,12 +800,12 @@ class PhotoTemplateApp {
         this._pushUndo();
         this._rebuildListbox();
         this._scheduleRefresh();
-        this._updateStatus(added + ' foto ditambahkan dari clipboard');
+        this._updateStatus(added + this._t('st.addedClip'));
       } else {
-        this._updateStatus('Clipboard tidak berisi gambar');
+        this._updateStatus(this._t('st.clipEmpty'));
       }
     } catch {
-      this._updateStatus('Gagal membaca clipboard');
+      this._updateStatus(this._t('st.clipFailed'));
     }
   }
 
@@ -671,17 +816,17 @@ class PhotoTemplateApp {
     selected.sort((a, b) => b - a).forEach(i => this.photos.splice(i, 1));
     this._rebuildListbox();
     this._scheduleRefresh();
-    this._updateStatus(this.photos.length + ' foto tersisa');
+    this._updateStatus(this.photos.length + this._t('st.remaining'));
   }
 
   _clearAll() {
     if (this.photos.length === 0) return;
-    if (!confirm('Hapus semua foto?')) return;
+    if (!confirm(this._t('cf.clearAll'))) return;
     this._pushUndo();
     this.photos = [];
     this._rebuildListbox();
     this._scheduleRefresh();
-    this._updateStatus('Semua foto dihapus');
+    this._updateStatus(this._t('st.cleared'));
   }
 
   _duplicateFast() {
@@ -700,24 +845,24 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     this._reselect(newSel);
     this._scheduleRefresh();
-    this._updateStatus(count + ' foto diduplikat');
+    this._updateStatus(count + this._t('st.duplicated'));
   }
 
   _duplicateSelected() {
     const sel = this._getSelectedIndices();
-    if (sel.length === 0) return alert('Pilih foto yang ingin diduplikat');
-    this._showDialog('Duplikat', (container) => {
+    if (sel.length === 0) return alert(this._t('al.selectFirst'));
+    this._showDialog(this._t('dlg.duplicate'), (container) => {
       container.innerHTML = `
-        <label>Jumlah copy per foto:</label>
+        <label>${this._t('dlg.copiesPer')}</label>
         <input type="number" id="dlg-num" value="1" min="1">
         <div class="dialog-buttons">
-          <button class="btn btn-primary" id="dlg-ok">OK</button>
-          <button class="btn btn-secondary" id="dlg-cancel">Batal</button>
+          <button class="btn btn-primary" id="dlg-ok">${this._t('dlg.ok')}</button>
+          <button class="btn btn-secondary" id="dlg-cancel">${this._t('dlg.cancel')}</button>
         </div>`;
       const inp = container.querySelector('#dlg-num');
       container.querySelector('#dlg-ok').onclick = () => {
         const num = parseInt(inp.value);
-        if (num < 1) return alert('Minimal 1 copy');
+        if (num < 1) return alert(this._t('al.min1copy'));
         this._pushUndo();
         let count = 0;
         const newSel = [];
@@ -733,7 +878,7 @@ class PhotoTemplateApp {
         this._rebuildListbox();
         this._reselect(newSel);
         this._scheduleRefresh();
-        this._updateStatus(count + ' copy ditambahkan');
+        this._updateStatus(count + this._t('st.copiesAdded'));
         this._hideDialog();
       };
       container.querySelector('#dlg-cancel').onclick = () => this._hideDialog();
@@ -742,9 +887,9 @@ class PhotoTemplateApp {
   }
 
   _fillAllSlots() {
-    if (this.photos.length === 0) return alert('Tambahkan minimal 1 foto');
+    if (this.photos.length === 0) return alert(this._t('al.addPhoto1'));
     const sel = this._getSelectedIndices();
-    if (sel.length === 0) return alert('Pilih foto yang ingin diduplikat di daftar');
+    if (sel.length === 0) return alert(this._t('al.selectFirst2'));
 
     const src = this.photos[sel[0]];
     const w_mm = src.width * 10;
@@ -752,7 +897,7 @@ class PhotoTemplateApp {
     const min_m = this._minMargin();
 
     if (w_mm > this._pageW() - 2 * min_m || h_mm > this._pageH() - 2 * min_m) {
-      return alert('Ukuran foto terlalu besar untuk halaman');
+      return alert(this._t('al.tooBigPage'));
     }
 
     let max_per_row = Math.floor((this._pageW() - 2 * min_m) / w_mm);
@@ -761,7 +906,7 @@ class PhotoTemplateApp {
     while (max_rows > 0 && (this._pageH() - max_rows * h_mm) / 2 < min_m) max_rows--;
 
     const num = max_per_row * max_rows;
-    if (num < 1) return alert('Foto tidak cukup muat');
+    if (num < 1) return alert(this._t('al.notFit'));
 
     this._pushUndo();
     this.photos = [];
@@ -770,7 +915,7 @@ class PhotoTemplateApp {
     }
     this._rebuildListbox();
     this._scheduleRefresh();
-    this._updateStatus('1 lembar (' + num + ' copy)');
+    this._updateStatus(this._t('st.sheet') + num + this._t('st.copies'));
   }
 
   _moveUp() {
@@ -810,7 +955,7 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     if (wasSel) this._reselect([toIdx]);
     this._scheduleRefresh();
-    this._updateStatus('Urutan foto diubah');
+    this._updateStatus(this._t('st.reordered'));
   }
 
   _selectAll() {
@@ -823,7 +968,7 @@ class PhotoTemplateApp {
     this._pushUndo();
     sel.forEach(i => { this.photos[i].rotation = (this.photos[i].rotation + degrees) % 360; });
     this._updatePreview();
-    this._updateStatus('Rotasi ' + degrees + '\u00B0');
+    this._updateStatus(this._t('st.rotated') + degrees + '\u00B0');
     this._saveState();
   }
 
@@ -851,7 +996,7 @@ class PhotoTemplateApp {
       p.rev = (p.rev || 0) + 1; // invalidasi cache thumbnail di _preparePhoto
     });
     this._updatePreview();
-    this._updateStatus('Flip ' + direction);
+    this._updateStatus(this._t('st.flipped') + direction);
     this._saveState();
   }
 
@@ -866,30 +1011,30 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     this._reselect(sel);
     this._scheduleRefresh();
-    this._updateStatus('Rasio ' + sel.length + ' foto dibalik');
+    this._updateStatus(this._t('st.ratioFlipped') + sel.length + this._t('st.ratioFlipped2'));
   }
 
   _setSizeSelected() {
     const sel = this._getSelectedIndices();
     if (sel.length === 0) return;
     const p = this.photos[sel[0]];
-    this._showDialog('Set Ukuran Foto', (container) => {
+    this._showDialog(this._t('dlg.setSize'), (container) => {
       container.innerHTML = `
-        <label>Lebar (cm):</label>
+        <label>${this._t('width')} (cm):</label>
         <input type="number" id="dlg-w" value="${p.width}" step="0.1" min="0.5" max="30">
-        <label>Tinggi (cm):</label>
+        <label>${this._t('height')} (cm):</label>
         <input type="number" id="dlg-h" value="${p.height}" step="0.1" min="0.5" max="30">
         <div class="dialog-buttons">
-          <button class="btn btn-primary" id="dlg-ok">OK</button>
-          <button class="btn btn-secondary" id="dlg-cancel">Batal</button>
+          <button class="btn btn-primary" id="dlg-ok">${this._t('dlg.ok')}</button>
+          <button class="btn btn-secondary" id="dlg-cancel">${this._t('dlg.cancel')}</button>
         </div>`;
       const wInp = container.querySelector('#dlg-w');
       const hInp = container.querySelector('#dlg-h');
       container.querySelector('#dlg-ok').onclick = () => {
         const w = parseFloat(wInp.value);
         const h = parseFloat(hInp.value);
-        if (w <= 0 || h <= 0) return alert('Ukuran harus > 0');
-        if (w * 10 > this._pageW() || h * 10 > this._pageH()) return alert('Foto lebih besar dari halaman');
+        if (w <= 0 || h <= 0) return alert(this._t('al.sizeZero'));
+        if (w * 10 > this._pageW() || h * 10 > this._pageH()) return alert(this._t('al.biggerPage'));
         this._pushUndo();
         sel.forEach(i => { this.photos[i].width = w; this.photos[i].height = h; });
         this._rebuildListbox();
@@ -905,26 +1050,28 @@ class PhotoTemplateApp {
   // Posisi konten di dalam halaman (global, berlaku untuk SEMUA halaman)
   _openPositionDialog() {
     const current = this.position || 'as-doc';
-    this._showDialog('Posisi Halaman', (container) => {
+    this._showDialog(this._t('dlg.pagePosition'), (container) => {
+      const lang = this.lang;
+      const posLabel = (key) => (POS_BTN[key] ? POS_BTN[key][lang] : key);
       container.innerHTML = `
-        <p class="pos-hint">Atur posisi blok foto di dalam halaman. Berlaku untuk semua halaman. Pilih "As in Document" untuk kembali ke susunan otomatis (mulai dari margin atas).</p>
+        <p class="pos-hint">${this._t('pos.hint')}</p>
         <div class="pos-grid">
-          <button type="button" class="pos-btn" data-pos="top-left">Atas Kiri</button>
-          <button type="button" class="pos-btn" data-pos="top-center">Atas Tengah</button>
-          <button type="button" class="pos-btn" data-pos="top-right">Atas Kanan</button>
-          <button type="button" class="pos-btn" data-pos="left-center">Kiri Tengah</button>
-          <button type="button" class="pos-btn" data-pos="center">Tengah</button>
-          <button type="button" class="pos-btn" data-pos="right-center">Kanan Tengah</button>
-          <button type="button" class="pos-btn" data-pos="bottom-left">Bawah Kiri</button>
-          <button type="button" class="pos-btn" data-pos="bottom-center">Bawah Tengah</button>
-          <button type="button" class="pos-btn" data-pos="bottom-right">Bawah Kanan</button>
+          <button type="button" class="pos-btn" data-pos="top-left">${posLabel('top-left')}</button>
+          <button type="button" class="pos-btn" data-pos="top-center">${posLabel('top-center')}</button>
+          <button type="button" class="pos-btn" data-pos="top-right">${posLabel('top-right')}</button>
+          <button type="button" class="pos-btn" data-pos="left-center">${posLabel('left-center')}</button>
+          <button type="button" class="pos-btn" data-pos="center">${posLabel('center')}</button>
+          <button type="button" class="pos-btn" data-pos="right-center">${posLabel('right-center')}</button>
+          <button type="button" class="pos-btn" data-pos="bottom-left">${posLabel('bottom-left')}</button>
+          <button type="button" class="pos-btn" data-pos="bottom-center">${posLabel('bottom-center')}</button>
+          <button type="button" class="pos-btn" data-pos="bottom-right">${posLabel('bottom-right')}</button>
         </div>
         <div class="pos-extra">
-          <button type="button" class="btn btn-secondary pos-extra-btn" data-pos="as-doc">As in Document (otomatis)</button>
-          <button type="button" class="btn btn-secondary pos-extra-btn" data-pos="fit-page">Fit to Page (isi penuh 1 halaman)</button>
+          <button type="button" class="btn btn-secondary pos-extra-btn" data-pos="as-doc">${this._t('pos.asDoc')}</button>
+          <button type="button" class="btn btn-secondary pos-extra-btn" data-pos="fit-page">${this._t('pos.fitPage')}</button>
         </div>
         <div class="dialog-buttons">
-          <button class="btn btn-secondary" id="dlg-cancel">Tutup</button>
+          <button class="btn btn-secondary" id="dlg-cancel">${this._t('dlg.close')}</button>
         </div>`;
       container.querySelectorAll('.pos-btn, .pos-extra-btn').forEach(btn => {
         if (current === btn.dataset.pos) btn.classList.add('active');
@@ -938,7 +1085,7 @@ class PhotoTemplateApp {
     this._pushUndo();
     this.position = pos;
     this._scheduleRefresh();
-    this._updateStatus('Posisi: ' + (POSITIONS[pos] || pos));
+    this._updateStatus(this._t('st.position') + (POSITIONS[pos] || pos));
     this._saveState();
     this._hideDialog();
   }
@@ -952,12 +1099,12 @@ class PhotoTemplateApp {
     this._updateOrientationBtn();
     this._scheduleRefresh();
     this._saveState();
-    this._updateStatus('Orientasi: ' + (this.orientation === 'landscape' ? 'Lanskap (297x210mm)' : 'Potret (210x297mm)'));
+    this._updateStatus(this._t('st.orientation') + (this.orientation === 'landscape' ? this._t('landscape') + ' (297x210mm)' : this._t('portrait') + ' (210x297mm)'));
   }
 
   _updateOrientationBtn() {
     if (this.els.orientationBtn) {
-      this.els.orientationBtn.textContent = 'Orientasi: ' + (this.orientation === 'landscape' ? 'Lanskap' : 'Potret');
+      this.els.orientationBtn.textContent = this._t('orientation') + ': ' + (this.orientation === 'landscape' ? this._t('landscape') : this._t('portrait'));
     }
   }
 
@@ -1032,7 +1179,7 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     this._scheduleRefresh();
     this._saveState();
-    this._updateStatus('Undo');
+    this._updateStatus(this._t('st.undo'));
   }
 
   // ---- Listbox ----
@@ -1043,7 +1190,7 @@ class PhotoTemplateApp {
       const item = document.createElement('div');
       item.className = 'photo-list-item';
       item.dataset.index = i;
-      item.innerHTML = `<span class="drag-handle" title="Geser untuk urutkan">&#8283;</span><span class="photo-name">${this._escapeHtml(p.name)}</span><span class="photo-size">${this._fmtSize(p.width, p.height)}</span>${p.filter === 'gray' ? '<span class="photo-filter-badge">GRAY</span>' : p.filter === 'bw' ? '<span class="photo-filter-badge bw">B&amp;W</span>' : ''}`;
+      item.innerHTML = `<span class="drag-handle" title="${this._escapeHtml(this._t('dragHint'))}">&#8283;</span><span class="photo-name">${this._escapeHtml(p.name)}</span><span class="photo-size">${this._fmtSize(p.width, p.height)}</span>${p.filter === 'gray' ? '<span class="photo-filter-badge">GRAY</span>' : p.filter === 'bw' ? '<span class="photo-filter-badge bw">B&amp;W</span>' : ''}`;
       item.addEventListener('click', (e) => {
         if (e.ctrlKey || e.metaKey) {
           item.classList.toggle('selected');
@@ -1138,10 +1285,10 @@ class PhotoTemplateApp {
     const info = this.els.infoLabel;
     if (sel.length > 0) {
       if (info.textContent.startsWith('\u2713')) return;
-      info.textContent = '\u2713 ' + sel.length + ' terpilih';
+      info.textContent = '\u2713 ' + sel.length + this._t('info.selected');
     } else {
       if (info.textContent.startsWith('\u2713')) {
-        if (this.photos.length === 0) info.textContent = 'Belum ada foto';
+        if (this.photos.length === 0) info.textContent = this._t('noPhotos');
         else this._updatePreview();
       }
     }
@@ -1155,6 +1302,35 @@ class PhotoTemplateApp {
     this.els.statusText.textContent = msg;
   }
 
+  _t(key) {
+    const d = I18N[key];
+    return d ? (d[this.lang] ?? d.id) : key;
+  }
+
+  _applyLang() {
+    const lang = this.lang;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = this._t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = this._t(el.dataset.i18nHtml); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = this._t(el.dataset.i18nPh); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = this._t(el.dataset.i18nTitle); });
+    if (this.els.btnLang) {
+      this.els.btnLang.textContent = lang === 'id' ? 'EN' : 'ID';
+      this.els.btnLang.title = this._t('lang.toggle');
+    }
+    this._refreshPresetCombo();
+    this._updateOrientationBtn();
+    this._updateInfoLabel();
+    this._updateSelectionInfo();
+    localStorage.setItem('template-photos-lang', lang);
+  }
+
+  _toggleLang() {
+    this.lang = this.lang === 'id' ? 'en' : 'id';
+    this._applyLang();
+    this._scheduleRefresh();
+  }
+
   _getBorderWidth(scale) {
     if (this.els.borderHairline.checked) return 1;
     const val = parseFloat(this.els.borderWidth.value);
@@ -1164,21 +1340,21 @@ class PhotoTemplateApp {
 
   _updateInfoLabel() {
     if (this.photos.length === 0) {
-      this.els.infoLabel.textContent = 'Belum ada foto';
+      this.els.infoLabel.textContent = this._t('noPhotos');
       this.els.pageNav.classList.add('hidden');
       return;
     }
     if (this.rowsData.length === 0 || this.allPages.length === 0) {
-      this.els.infoLabel.textContent = 'Foto tidak cukup muat di A4';
+      this.els.infoLabel.textContent = this._t('info.tooBig');
       this.els.pageNav.classList.add('hidden');
       return;
     }
     const totalPerSheet = this.rowsData.reduce((s, r) => s + r[2].length, 0);
     const posLabel = this.tileGrid
-      ? 'Tile: ' + this.tileGrid.replace('x', '×')
-      : 'Posisi: ' + (POSITIONS[this.position] || this.position);
+      ? this._t('info.tile') + this.tileGrid.replace('x', '×')
+      : this._t('info.pos') + (POSITIONS[this.position] || this.position);
     this.els.infoLabel.textContent =
-      `${this.rowsData.length} baris, ${totalPerSheet} foto  |  Atas: ${this.marginTopMm.toFixed(1)}mm  |  Bawah: ${this.marginBottomMm.toFixed(1)}mm  |  ${posLabel}`;
+      this.rowsData.length + this._t('info.rows') + totalPerSheet + this._t('info.photos') + this.marginTopMm.toFixed(1) + this._t('info.bottom') + this.marginBottomMm.toFixed(1) + posLabel;
     if (this.allPages.length > 1) {
       this.els.pageNav.classList.remove('hidden');
       this.els.pageLabel.textContent = (this.currentPage + 1) + ' / ' + this.allPages.length;
@@ -1508,10 +1684,10 @@ class PhotoTemplateApp {
     ctx.fillText('\u25A3', cw / 2, ch / 2 - 20);
     ctx.fillStyle = '#9ca3af';
     ctx.font = 'bold 14px sans-serif';
-    ctx.fillText('Belum ada foto', cw / 2, ch / 2 + 22);
+    ctx.fillText(this._t('noPhotos'), cw / 2, ch / 2 + 22);
     ctx.fillStyle = '#6b7280';
     ctx.font = '12px sans-serif';
-    ctx.fillText('Tambahkan foto untuk melihat preview', cw / 2, ch / 2 + 42);
+    ctx.fillText(this._t('addPreviewHint'), cw / 2, ch / 2 + 42);
   }
 
   // ---- Zoom & Pan ----
@@ -1778,12 +1954,12 @@ class PhotoTemplateApp {
   }
 
   async _exportPng() {
-    if (this.photos.length === 0) return alert('Tambahkan minimal 1 foto');
+    if (this.photos.length === 0) return alert(this._t('al.addPhoto1'));
 
     this._calculatePages();
-    if (this.allPages.length === 0) return alert('Tidak ada foto yang muat');
+    if (this.allPages.length === 0) return alert(this._t('al.noFit'));
 
-    this._updateStatus('Memproses ' + this.allPages.length + ' halaman...');
+    this._updateStatus(this._t('st.processing') + this.allPages.length + this._t('st.pages'));
 
     for (let s = 0; s < this.allPages.length; s++) {
       const [start] = this.allPages[s];
@@ -1797,18 +1973,18 @@ class PhotoTemplateApp {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      this._updateStatus('Halaman ' + (s + 1) + ' dari ' + this.allPages.length + ' selesai');
+      this._updateStatus(this._t('st.pageDone') + (s + 1) + ' / ' + this.allPages.length + this._t('st.pageDone'));
       await this._delay(300);
     }
 
-    this._updateStatus('Selesai! ' + this.allPages.length + ' halaman tersimpan');
+    this._updateStatus(this._t('st.done') + this.allPages.length + this._t('st.savedPages'));
   }
 
   async _printTemplate() {
-    if (this.photos.length === 0) return alert('Tambahkan minimal 1 foto');
+    if (this.photos.length === 0) return alert(this._t('al.addPhoto1'));
 
     this._calculatePages();
-    if (this.allPages.length === 0) return alert('Tidak ada foto yang muat');
+    if (this.allPages.length === 0) return alert(this._t('al.noFit'));
 
     const images = this.allPages.map(([start]) => this._renderPage(start));
     const imgTags = images.map(c => `<img src="${c.toDataURL('image/png')}">`).join('');
@@ -1877,7 +2053,7 @@ class PhotoTemplateApp {
         const img = new Image();
         const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none' };
         this.photos.push(entry);
-        const check = () => { loaded++; if (loaded >= total) { this._rebuildListbox(); this._refreshNow(); this._updateStatus(this.photos.length + ' foto dipulihkan'); } };
+        const check = () => { loaded++; if (loaded >= total) { this._rebuildListbox(); this._refreshNow(); this._updateStatus(this.photos.length + this._t('st.restored')); } };
         img.onload = check;
         img.onerror = check;
         img.src = d.dataUrl;
@@ -1902,7 +2078,7 @@ class PhotoTemplateApp {
   _refreshPresetCombo() {
     const all = [...BUILTIN_PRESETS, ...this._userPresets];
     const combo = this.els.presetCombo;
-    combo.innerHTML = '<option value="">-- Pilih Preset --</option>' +
+    combo.innerHTML = '<option value="">' + this._escapeHtml(this._t('choosePreset')) + '</option>' +
       all.map(p => `<option value="${this._escapeHtml(p.name)}">${this._escapeHtml(p.name)}</option>`).join('');
     document.getElementById('btn-delete-preset').style.display = this._userPresets.length > 0 ? '' : 'none';
   }
@@ -1932,26 +2108,26 @@ class PhotoTemplateApp {
       p.height = data.photo_h_cm;
     });
     this._scheduleRefresh();
-    this._updateStatus('Preset \'' + data.name + '\' diterapkan');
+    this._updateStatus(this._t('st.presetApplied') + data.name + this._t('st.appliedTail'));
   }
 
   _saveCurrentPresetAs() {
-    this._showDialog('Simpan Preset', (container) => {
+    this._showDialog(this._t('dlg.savePreset'), (container) => {
       container.innerHTML = `
-        <label>Nama Preset:</label>
-        <input type="text" id="dlg-name" placeholder="Nama preset...">
+        <label>${this._t('dlg.presetName')}</label>
+        <input type="text" id="dlg-name" placeholder="${this._t('dlg.presetPh')}">
         <div class="dialog-buttons">
-          <button class="btn btn-primary" id="dlg-ok">OK</button>
-          <button class="btn btn-secondary" id="dlg-cancel">Batal</button>
+          <button class="btn btn-primary" id="dlg-ok">${this._t('dlg.ok')}</button>
+          <button class="btn btn-secondary" id="dlg-cancel">${this._t('dlg.cancel')}</button>
         </div>`;
       const inp = container.querySelector('#dlg-name');
       container.querySelector('#dlg-ok').onclick = () => {
         const name = inp.value.trim();
-        if (!name) return alert('Nama preset tidak boleh kosong');
+        if (!name) return alert(this._t('al.presetEmpty'));
         const all = [...BUILTIN_PRESETS, ...this._userPresets];
         const existing = all.find(p => p.name === name);
         if (existing) {
-          if (!confirm('Preset \'' + name + '\' sudah ada. Timpa?')) return;
+          if (!confirm(this._t('st.presetApplied') + name + this._t('al.overwrite'))) return;
           const idx = this._userPresets.findIndex(p => p.name === name);
           if (idx >= 0) this._userPresets.splice(idx, 1);
         }
@@ -1970,7 +2146,7 @@ class PhotoTemplateApp {
         this._refreshPresetCombo();
         this.els.presetCombo.value = name;
         this._hideDialog();
-        this._updateStatus('Preset \'' + name + '\' tersimpan');
+        this._updateStatus(this._t('st.presetApplied') + name + this._t('st.presetSaved'));
       };
       container.querySelector('#dlg-cancel').onclick = () => this._hideDialog();
       setTimeout(() => inp.focus(), 50);
@@ -1981,13 +2157,13 @@ class PhotoTemplateApp {
     const name = this.els.presetCombo.value;
     if (!name) return;
     const idx = this._userPresets.findIndex(p => p.name === name);
-    if (idx < 0) return alert('Preset bawaan tidak bisa dihapus');
-    if (!confirm('Hapus preset "' + name + '"?')) return;
+    if (idx < 0) return alert(this._t('al.builtin'));
+    if (!confirm(this._t('al.deletePreset') + name + this._t('al.deleteTail'))) return;
     this._userPresets.splice(idx, 1);
     this._savePresets();
     this._refreshPresetCombo();
     this.els.presetCombo.value = '';
-    this._updateStatus('Preset \'' + name + '\' dihapus');
+    this._updateStatus(this._t('st.presetApplied') + name + this._t('st.presetDeleted'));
   }
 
   // ---- Dialogs ----

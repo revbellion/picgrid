@@ -4,101 +4,102 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Template Photos Maker</title>
-<link rel="stylesheet" href="css/styles.css?v=20260815a">
+<link rel="stylesheet" href="css/styles.css?v=20260815b">
 </head>
 <body>
 <div id="app">
-  <header id="header">
+<header id="header">
     <h1>Template Photos Maker</h1>
-    <p class="subtitle">Susun, atur, dan cetak foto dalam layout A4 dengan rapi.</p>
+    <p class="subtitle" data-i18n="subtitle">Susun, atur, dan cetak foto dalam layout A4 dengan rapi.</p>
+    <button id="btn-lang" class="btn btn-sm btn-secondary">EN</button>
   </header>
 
   <div id="main-layout">
     <div id="sidebar">
       <section id="settings-card" class="card">
-        <div class="card-header">Ukuran &amp; Margin</div>
+        <div class="card-header" data-i18n="sizeMargin">Ukuran &amp; Margin</div>
         <div class="card-body">
           <div class="settings-grid">
             <div class="setting-row">
-              <label>Lebar</label>
+<label data-i18n="width">Lebar</label>
               <input type="number" id="photo-width" class="input-num" value="4" step="0.1" min="0.5" max="30">
               <span class="unit">cm</span>
 
-              <label>Tinggi</label>
+              <label data-i18n="height">Tinggi</label>
               <input type="number" id="photo-height" class="input-num" value="6" step="0.1" min="0.5" max="30">
               <span class="unit">cm</span>
 
-              <label>Min Margin</label>
+              <label data-i18n="minMargin">Min Margin</label>
               <input type="number" id="min-margin" class="input-num-sm" value="5" step="1" min="0" max="30">
               <span class="unit">mm</span>
 
-              <label>Margin Atas</label>
+              <label data-i18n="marginTop">Margin Atas</label>
               <input type="number" id="margin-atas" class="input-num-sm" value="6" step="1" min="0" max="50">
               <span class="unit">mm</span>
             </div>
             <hr class="divider">
             <div class="setting-row">
-              <label class="checkbox-label">
+<label class="checkbox-label">
                 <input type="checkbox" id="show-border" checked>
-                Border
+                <span data-i18n="border">Border</span>
               </label>
-              <label>Tebal</label>
+              <label data-i18n="thickness">Tebal</label>
               <input type="number" id="border-width" class="input-num-sm" value="0.1" step="0.001" min="0" max="2">
               <span class="unit">mm</span>
               <label class="checkbox-label">
                 <input type="checkbox" id="border-hairline">
-                Hairline
+                <span data-i18n="hairline">Hairline</span>
               </label>
 
               <label class="checkbox-label">
                 <input type="checkbox" id="show-cutlines" checked>
-                Garis Potong
+                <span data-i18n="cutLines">Garis Potong</span>
               </label>
 
               <label class="checkbox-label">
                 <input type="checkbox" id="auto-rotate" checked>
-                Auto-rotate
+                <span data-i18n="autoRotate">Auto-rotate</span>
               </label>
 
-              <label>Mode</label>
+              <label data-i18n="mode">Mode</label>
               <select id="fit-mode" class="input-select-sm">
                 <option value="fill">fill</option>
                 <option value="fit">fit</option>
                 <option value="stretch">stretch</option>
               </select>
-              <span class="hint">fill=potong&nbsp; fit=muat&nbsp; stretch=tarik</span>
+              <span class="hint" data-i18n="modeHint">fill=potong&nbsp; fit=muat&nbsp; stretch=tarik</span>
 
               <label class="checkbox-label">
                 <input type="checkbox" id="tile-enable">
-                Tile (bagi halaman rata)
+                <span data-i18n="tile">Tile (bagi halaman rata)</span>
               </label>
               <span id="tile-inputs">
-                <label>Baris</label>
+                <label data-i18n="rows">Baris</label>
                 <input type="number" id="tile-rows" class="input-num-sm" value="2" min="1" max="12" step="1">
-                <label>Kolom</label>
+                <label data-i18n="cols">Kolom</label>
                 <input type="number" id="tile-cols" class="input-num-sm" value="2" min="1" max="12" step="1">
               </span>
-              <span class="hint">canvas dibagi rata sesuai Baris Ã— Kolom</span>
+              <span class="hint" data-i18n="tileHint">canvas dibagi rata sesuai Baris Ã— Kolom</span>
 
               <label class="checkbox-label">
                 <input type="checkbox" id="show-white-border" checked>
-                Border Putih
+                <span data-i18n="whiteBorder">Border Putih</span>
               </label>
             </div>
             <div class="setting-row">
-              <label>Atas</label>
+<label data-i18n="top">Atas</label>
               <input type="number" id="wb-top" class="input-num-sm" value="1.5" step="0.1" min="0" max="5">
               <span class="unit">mm</span>
 
-              <label>Bawah</label>
+              <label data-i18n="bottom">Bawah</label>
               <input type="number" id="wb-bottom" class="input-num-sm" value="1.5" step="0.1" min="0" max="5">
               <span class="unit">mm</span>
 
-              <label>Kiri</label>
+              <label data-i18n="left">Kiri</label>
               <input type="number" id="wb-left" class="input-num-sm" value="1.5" step="0.1" min="0" max="5">
               <span class="unit">mm</span>
 
-              <label>Kanan</label>
+              <label data-i18n="right">Kanan</label>
               <input type="number" id="wb-right" class="input-num-sm" value="1.5" step="0.1" min="0" max="5">
               <span class="unit">mm</span>
             </div>
@@ -109,17 +110,17 @@
 
     <div id="content-area">
       <div id="info-strip">
-        <span id="info-label">Belum ada foto</span>
+<span id="info-label" data-i18n="noPhotos">Belum ada foto</span>
         <div id="page-nav" class="hidden">
-          <button id="btn-page-prev" class="btn btn-sm btn-secondary" title="Halaman sebelumnya">&larr;</button>
+          <button id="btn-page-prev" class="btn btn-sm btn-secondary" title="Halaman sebelumnya" data-i18n-title="prevPage">&larr;</button>
           <span id="page-label">1 / 1</span>
-          <button id="btn-page-next" class="btn btn-sm btn-secondary" title="Halaman selanjutnya">&rarr;</button>
+          <button id="btn-page-next" class="btn btn-sm btn-secondary" title="Halaman selanjutnya" data-i18n-title="nextPage">&rarr;</button>
         </div>
       </div>
 
       <div id="right-panel">
         <div id="preview-header">
-          <span class="preview-title">Preview</span>
+          <span class="preview-title" data-i18n="preview">Preview</span>
           <div id="zoom-controls">
             <span id="zoom-label">100%</span>
             <button id="btn-zoom-in" class="btn btn-sm btn-secondary">+</button>
@@ -133,37 +134,37 @@
       </div>
 
       <div id="action-bar">
-        <button id="btn-page-position" class="btn btn-secondary">Posisi Halaman...</button>
+<button id="btn-page-position" class="btn btn-secondary" data-i18n="pagePosition">Posisi Halaman...</button>
         <button id="btn-orientation" class="btn btn-secondary">Orientasi: Potret</button>
-        <button id="btn-print" class="btn btn-primary">Print</button>
-        <button id="btn-export-png" class="btn btn-success">Export PNG</button>
+        <button id="btn-print" class="btn btn-primary" data-i18n="print">Print</button>
+        <button id="btn-export-png" class="btn btn-success" data-i18n="exportPng">Export PNG</button>
       </div>
 
       <div id="status-bar">
-        <span id="status-text">&#x25CF; Siap</span>
+        <span id="status-text" data-i18n="ready">&#x25CF; Siap</span>
       </div>
     </div>
 
     <div id="right-sidebar">
       <section id="preset-card" class="card">
-        <div class="card-header">Preset</div>
+<div class="card-header" data-i18n="preset">Preset</div>
         <div class="card-body row">
           <select id="preset-combo" class="input-select"></select>
-          <button id="btn-save-preset" class="btn btn-outline-primary">Simpan Preset</button>
-          <button id="btn-delete-preset" class="btn btn-outline-danger">Hapus</button>
+          <button id="btn-save-preset" class="btn btn-outline-primary" data-i18n="savePreset">Simpan Preset</button>
+          <button id="btn-delete-preset" class="btn btn-outline-danger" data-i18n="delete">Hapus</button>
         </div>
       </section>
 
       <div id="left-panel">
         <div id="toolbar" class="row">
-          <button id="btn-add" class="btn btn-primary">+ Tambah Foto</button>
-          <button id="btn-remove" class="btn btn-warning-outline">Hapus</button>
-          <button id="btn-clear" class="btn btn-danger-outline">Hapus Semua</button>
-<button id="btn-fill" class="btn btn-outline-primary">Isi Semua Slot</button>
+<button id="btn-add" class="btn btn-primary" data-i18n="addPhoto">+ Tambah Foto</button>
+          <button id="btn-remove" class="btn btn-warning-outline" data-i18n="remove">Hapus</button>
+          <button id="btn-clear" class="btn btn-danger-outline" data-i18n="clearAll">Hapus Semua</button>
+<button id="btn-fill" class="btn btn-outline-primary" data-i18n="fillAllSlots">Isi Semua Slot</button>
         </div>
         <div id="list-container">
           <div id="photo-list"></div>
-          <div id="list-placeholder">Drag &amp; drop foto di sini<br>atau klik + Tambah Foto</div>
+          <div id="list-placeholder" data-i18n-html="listPlaceholder">Drag &amp; drop foto di sini<br>atau klik + Tambah Foto</div>
         </div>
       </div>
     </div>
@@ -171,21 +172,21 @@
 </div>
 
 <div id="context-menu" class="hidden">
-  <button data-action="set-size">Set Ukuran...</button>
+  <button data-action="set-size" data-i18n="cm.setSize">Set Ukuran...</button>
   <hr>
-  <button data-action="rotate-cw">Rotate 90&deg; CW</button>
-  <button data-action="rotate-ccw">Rotate 90&deg; CCW</button>
-  <button data-action="rotate-180">Rotate 180&deg;</button>
+  <button data-action="rotate-cw" data-i18n="cm.rotateCw">Rotate 90&deg; CW</button>
+  <button data-action="rotate-ccw" data-i18n="cm.rotateCcw">Rotate 90&deg; CCW</button>
+  <button data-action="rotate-180" data-i18n="cm.rotate180">Rotate 180&deg;</button>
   <hr>
-  <button data-action="flip-h">Flip Horizontal</button>
-  <button data-action="flip-v">Flip Vertical</button>
-  <button data-action="flip-ratio">Flip Rasio</button>
+  <button data-action="flip-h" data-i18n="cm.flipH">Flip Horizontal</button>
+  <button data-action="flip-v" data-i18n="cm.flipV">Flip Vertical</button>
+  <button data-action="flip-ratio" data-i18n="cm.flipRatio">Flip Rasio</button>
   <hr>
-  <button data-action="duplicate">Duplikat...</button>
+  <button data-action="duplicate" data-i18n="cm.duplicate">Duplikat...</button>
   <hr>
-  <button data-action="filter-none" data-label="Warna (Normal)">Warna (Normal)</button>
-  <button data-action="filter-gray" data-label="Grayscale">Grayscale</button>
-  <button data-action="filter-bw" data-label="Black &amp; White">Black &amp; White</button>
+  <button data-action="filter-none" data-label="Warna (Normal)" data-i18n="cm.color">Warna (Normal)</button>
+  <button data-action="filter-gray" data-label="Grayscale" data-i18n="cm.gray">Grayscale</button>
+  <button data-action="filter-bw" data-label="Black &amp; White" data-i18n="cm.bw">Black &amp; White</button>
 </div>
 
 <dialog id="dialog-overlay" class="hidden">
@@ -197,8 +198,9 @@
 <input type="file" id="file-input" multiple accept="image/*" style="display:none">
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="js/app.js?v=20260815e"></script>
+<script src="js/app.js?v=20260815f"></script>
 </body>
 </html>
+
 
 

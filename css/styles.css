@@ -50,6 +50,7 @@ body {
 
 /* ---- Header ---- */
 #header { margin-bottom: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#header #btn-lang { margin-left: auto; }
 #header h1 {
   font-size: 24px;
   font-weight: 800;
