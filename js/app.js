@@ -1071,6 +1071,7 @@ class PhotoTemplateApp {
     sel.forEach(i => {
       const p = this.photos[i];
       [p.width, p.height] = [p.height, p.width];
+      p.rotation = (p.rotation + 90) % 360;
     });
     this._rebuildListbox();
     this._reselect(sel);
