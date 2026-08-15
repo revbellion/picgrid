@@ -12,9 +12,9 @@ const BUILTIN_PRESETS = [
   { name: '3R',              photo_w_cm: 8.9, photo_h_cm: 12.7, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '4R',              photo_w_cm: 10.2, photo_h_cm: 15.2, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '2R',              photo_w_cm: 6.4, photo_h_cm: 8.9, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
-  { name: 'Pasfoto 2x3',    photo_w_cm: 2.3, photo_h_cm: 3.3, wb_top_mm: 1.5, wb_bottom_mm: 1.5, wb_left_mm: 1.5, wb_right_mm: 1.5 },
-  { name: 'Pasfoto 3x4',    photo_w_cm: 3.3, photo_h_cm: 4.3, wb_top_mm: 1.5, wb_bottom_mm: 1.5, wb_left_mm: 1.5, wb_right_mm: 1.5 },
-  { name: 'Pasfoto 4x6',    photo_w_cm: 4.3, photo_h_cm: 6.3, wb_top_mm: 1.5, wb_bottom_mm: 1.5, wb_left_mm: 1.5, wb_right_mm: 1.5 },
+  { name: 'Pasfoto 2x3',    photo_w_cm: 2.0, photo_h_cm: 3.0, wb_top_mm: 1.0, wb_bottom_mm: 1.0, wb_left_mm: 1.0, wb_right_mm: 1.0 },
+  { name: 'Pasfoto 3x4',    photo_w_cm: 3.0, photo_h_cm: 4.0, wb_top_mm: 1.5, wb_bottom_mm: 1.5, wb_left_mm: 1.5, wb_right_mm: 1.5 },
+  { name: 'Pasfoto 4x6',    photo_w_cm: 4.0, photo_h_cm: 6.0, wb_top_mm: 2.0, wb_bottom_mm: 2.0, wb_left_mm: 2.0, wb_right_mm: 2.0 },
 ];
 
 const POSITIONS = {
