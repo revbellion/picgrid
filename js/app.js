@@ -11,14 +11,14 @@ const BUILTIN_PRESETS = [
   { name: 'Polaroid 2R',               photo_w_cm: 6.0,  photo_h_cm: 9.0,  wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0 },
   { name: 'Polaroid 7x10',             photo_w_cm: 7.0,  photo_h_cm: 10.0, wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0 },
   { name: 'Polaroid SQUARE',           photo_w_cm: 7.0,  photo_h_cm: 9.0,  wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0 },
-  { name: 'Polaroid 3 STRIP Landscape', photo_w_cm: 7.7, photo_h_cm: 17.8, wb_top_mm: 4.5, wb_bottom_mm: 22.5, wb_left_mm: 4.5, wb_right_mm: 4.5 },
+  { name: 'Polaroid 3 STRIP Landscape', photo_w_cm: 7.7, photo_h_cm: 17.8, wb_top_mm: 4.5, wb_bottom_mm: 22.5, wb_left_mm: 4.5, wb_right_mm: 4.5, strip: 3 },
   { name: 'Polaroid 3R',               photo_w_cm: 8.6,  photo_h_cm: 12.6, wb_top_mm: 5.0, wb_bottom_mm: 25.0, wb_left_mm: 5.0, wb_right_mm: 5.0 },
   { name: 'Polaroid WIDE',             photo_w_cm: 11.0, photo_h_cm: 9.0,  wb_top_mm: 5.0, wb_bottom_mm: 25.0, wb_left_mm: 5.0, wb_right_mm: 5.0 },
   { name: 'Polaroid 4R',               photo_w_cm: 10.0, photo_h_cm: 15.0, wb_top_mm: 5.5, wb_bottom_mm: 27.5, wb_left_mm: 5.5, wb_right_mm: 5.5 },
   { name: 'Polaroid SNAPSHOT A',       photo_w_cm: 10.0, photo_h_cm: 15.0, wb_top_mm: 5.5, wb_bottom_mm: 27.5, wb_left_mm: 5.5, wb_right_mm: 5.5 },
   { name: 'Polaroid SNAPSHOT B',       photo_w_cm: 11.5, photo_h_cm: 17.0, wb_top_mm: 6.0, wb_bottom_mm: 30.0, wb_left_mm: 6.0, wb_right_mm: 6.0 },
-  { name: 'Polaroid 3 STRIP',          photo_w_cm: 5.0,  photo_h_cm: 15.0, wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0 },
-  { name: 'Polaroid 4 STRIP',          photo_w_cm: 5.0,  photo_h_cm: 18.5, wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0 },
+  { name: 'Polaroid 3 STRIP',          photo_w_cm: 5.0,  photo_h_cm: 15.0, wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0, strip: 3 },
+  { name: 'Polaroid 4 STRIP',          photo_w_cm: 5.0,  photo_h_cm: 18.5, wb_top_mm: 4.0, wb_bottom_mm: 20.0, wb_left_mm: 4.0, wb_right_mm: 4.0, strip: 4 },
   { name: '3R',              photo_w_cm: 8.9, photo_h_cm: 12.7, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '4R',              photo_w_cm: 10.2, photo_h_cm: 15.2, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
   { name: '2R',              photo_w_cm: 6.4, photo_h_cm: 8.9, wb_top_mm: 0,  wb_bottom_mm: 0,  wb_left_mm: 0, wb_right_mm: 0 },
@@ -945,12 +945,14 @@ class PhotoTemplateApp {
     } else {
       const wmm = [];
       const hmm = [];
+      const stp = [];
       for (let k = 0; k < 500; k++) {
         const src = this.photos[k % this.photos.length];
         wmm.push(src.width * 10);
         hmm.push(src.height * 10);
+        stp.push(src.strip || 1);
       }
-      const [, next_i] = this._packRows(wmm, hmm, 0, 500, A4_W, A4_H, minMargin);
+      const [, next_i] = this._packRows(wmm, hmm, 0, 500, A4_W, A4_H, minMargin, stp);
       capacity = next_i;
     }
     if (capacity < 1 || this.photos.length >= capacity) return;
@@ -1414,7 +1416,7 @@ class PhotoTemplateApp {
       this.els.pageNav.classList.add('hidden');
       return;
     }
-    const totalPerSheet = this.rowsData.reduce((s, r) => s + r[2].length, 0);
+    const totalPerSheet = this.rowsData.reduce((s, r) => s + r[2].reduce((a, [pi]) => a + (this.photos[pi].strip || 1), 0), 0);
     const posLabel = this.tileGrid
       ? this._t('info.tile') + this.tileGrid.replace('x', '×')
       : this._t('info.pos') + (POSITIONS[this.position] || this.position);
@@ -1463,17 +1465,18 @@ class PhotoTemplateApp {
     this.els.tileCols.disabled = !on;
   }
 
-  _packRows(w_mm, h_mm, start, end, a4_w, a4_h, minMargin) {
+  _packRows(w_mm, h_mm, start, end, a4_w, a4_h, minMargin, strips) {
     const rowsData = [];
     let idx = start;
     while (idx < end) {
       const ph = h_mm[idx];
-      if (ph > a4_h - 2 * minMargin || ph <= 0) { idx++; continue; }
+      const st = strips ? (strips[idx] || 1) : 1;
+      if (ph > a4_h - 2 * minMargin || ph <= 0) { idx += st; continue; }
 
       const photosInRow = [[idx, 0, w_mm[idx], ph]];
       let rowH = ph;
       let rowWSum = w_mm[idx];
-      let next_i = idx + 1;
+      let next_i = idx + st;
 
       while (next_i < end) {
         const nh = h_mm[next_i];
@@ -1482,7 +1485,7 @@ class PhotoTemplateApp {
         if ((a4_w - (rowWSum + nw)) / 2 < minMargin) break;
         photosInRow.push([next_i, rowWSum, nw, nh]);
         rowWSum += nw;
-        next_i++;
+        next_i += (strips ? (strips[next_i] || 1) : 1);
       }
 
       const marginX = (a4_w - rowWSum) / 2;
@@ -1515,9 +1518,10 @@ class PhotoTemplateApp {
     }
     const w_mm_list = this.photos.map(p => p.width * 10);
     const h_mm_list = this.photos.map(p => p.height * 10);
+    const strips = this.photos.map(p => p.strip || 1);
     let i = 0;
     while (i < this.photos.length) {
-      const [, next_i] = this._packRows(w_mm_list, h_mm_list, i, this.photos.length, A4_W, A4_H, minMargin);
+      const [, next_i] = this._packRows(w_mm_list, h_mm_list, i, this.photos.length, A4_W, A4_H, minMargin, strips);
       if (next_i === i) break;
       this.allPages.push([i, next_i]);
       i = next_i;
@@ -1563,7 +1567,8 @@ class PhotoTemplateApp {
 
     const w_mm_list = this.photos.map(p => p.width * 10);
     const h_mm_list = this.photos.map(p => p.height * 10);
-    const [rowsData, _] = this._packRows(w_mm_list, h_mm_list, pageStart, this.photos.length, A4_W, A4_H, minMargin);
+    const strips = this.photos.map(p => p.strip || 1);
+    const [rowsData, _] = this._packRows(w_mm_list, h_mm_list, pageStart, this.photos.length, A4_W, A4_H, minMargin, strips);
 
     if (!rowsData || rowsData.length === 0) {
       this.rowsData = [];
@@ -1807,11 +1812,13 @@ class PhotoTemplateApp {
     const wb_b = showWB ? Math.round((parseFloat(this.els.wbBottom.value) || 0) * pxPerMm) : 0;
     const wb_l = showWB ? Math.round((parseFloat(this.els.wbLeft.value) || 0) * pxPerMm) : 0;
     const wb_r = showWB ? Math.round((parseFloat(this.els.wbRight.value) || 0) * pxPerMm) : 0;
+    const N = p.strip || 1;
+    const subIds = N > 1 ? this.photos.slice(idx, Math.min(idx + N, this.photos.length)).map(q => q.id + (q.rev || 0)).join(',') : '';
     const cacheKey = [p.id, p.rev || 0, p.filter || 'none', slotW, slotH, p.rotation,
-      this.els.fitMode.value, showWB, wb_t, wb_b, wb_l, wb_r, this.position || 'as-doc', this.orientation || 'portrait'].join('|');
+      this.els.fitMode.value, showWB, wb_t, wb_b, wb_l, wb_r, this.position || 'as-doc', this.orientation || 'portrait', N, subIds].join('|');
     if (this._filterCache.has(cacheKey)) return this._filterCache.get(cacheKey);
 
-    let img = p.img;
+    const mode = isFitPage ? 'fill' : this.els.fitMode.value;
 
     const canvas = document.createElement('canvas');
     canvas.width = slotW;
@@ -1826,23 +1833,42 @@ class PhotoTemplateApp {
     const innerW = Math.max(1, photoWPx - wb_l - wb_r);
     const innerH = Math.max(1, photoHPx - wb_t - wb_b);
 
-    let processed = this._applyRotation(img, p.rotation);
-
-    const mode = isFitPage ? 'fill' : this.els.fitMode.value;
-    if (mode === 'fill') {
-      processed = this._cropToAspect(processed, innerW, innerH);
-      processed = this._resizeImage(processed, innerW, innerH);
-    } else if (mode === 'fit') {
-      processed = this._fitImage(processed, innerW, innerH);
-    } else if (mode === 'stretch') {
-      processed = this._resizeImage(processed, innerW, innerH);
+    if (N > 1 && !isFitPage && !this.tileGrid) {
+      const gap = Math.max(1, Math.round(1 * pxPerMm));
+      const subH = Math.max(1, Math.round((innerH - (N - 1) * gap) / N));
+      const subW = innerW;
+      for (let j = 0; j < N; j++) {
+        const srcIdx = Math.min(idx + j, this.photos.length - 1);
+        const sp = this.photos[srcIdx];
+        let sub = this._applyRotation(sp.img, sp.rotation);
+        if (mode === 'fill') {
+          sub = this._cropToAspect(sub, subW, subH);
+          sub = this._resizeImage(sub, subW, subH);
+        } else if (mode === 'fit') {
+          sub = this._fitImage(sub, subW, subH);
+        } else if (mode === 'stretch') {
+          sub = this._resizeImage(sub, subW, subH);
+        }
+        sub = this._applyFilter(sub, sp.filter);
+        const sx = wb_l + Math.round((subW - sub.width) / 2);
+        const sy = wb_t + j * (subH + gap) + Math.round((subH - sub.height) / 2);
+        ctx.drawImage(sub, sx, sy, sub.width, sub.height);
+      }
+    } else {
+      let processed = this._applyRotation(p.img, p.rotation);
+      if (mode === 'fill') {
+        processed = this._cropToAspect(processed, innerW, innerH);
+        processed = this._resizeImage(processed, innerW, innerH);
+      } else if (mode === 'fit') {
+        processed = this._fitImage(processed, innerW, innerH);
+      } else if (mode === 'stretch') {
+        processed = this._resizeImage(processed, innerW, innerH);
+      }
+      processed = this._applyFilter(processed, p.filter);
+      const x = wb_l + Math.round((innerW - processed.width) / 2);
+      const y = wb_t + Math.round((innerH - processed.height) / 2);
+      ctx.drawImage(processed, x, y, processed.width, processed.height);
     }
-
-    processed = this._applyFilter(processed, p.filter);
-
-    const x = wb_l + Math.round((innerW - processed.width) / 2);
-    const y = wb_t + Math.round((innerH - processed.height) / 2);
-    ctx.drawImage(processed, x, y, processed.width, processed.height);
 
     if (this._filterCache.size > 80) this._filterCache.clear();
     this._filterCache.set(cacheKey, canvas);
@@ -1926,7 +1952,8 @@ class PhotoTemplateApp {
     } else {
       const w_mm_list = this.photos.map(p => p.width * 10);
       const h_mm_list = this.photos.map(p => p.height * 10);
-      const [rd, _] = this._packRows(w_mm_list, h_mm_list, start, this.photos.length, A4_W, A4_H, minMargin);
+      const strips = this.photos.map(p => p.strip || 1);
+      const [rd, _] = this._packRows(w_mm_list, h_mm_list, start, this.photos.length, A4_W, A4_H, minMargin, strips);
       if (rd && rd.length > 0) {
         const marginAtas = this._marginAtas();
         let offsetY;
@@ -2082,7 +2109,7 @@ class PhotoTemplateApp {
     try {
       const data = this.photos.filter(p => p.dataUrl).map(p => ({
         id: p.id, name: p.name, dataUrl: p.dataUrl,
-        width: p.width, height: p.height, rotation: p.rotation, filter: p.filter || 'none',
+        width: p.width, height: p.height, rotation: p.rotation, filter: p.filter || 'none', strip: p.strip || 1,
       }));
       localStorage.setItem('a4-photos-state', JSON.stringify(data));
       localStorage.setItem('a4-photos-position', this.position || 'as-doc');
@@ -2116,7 +2143,7 @@ class PhotoTemplateApp {
       for (const d of data) {
         if (!d.dataUrl) { loaded++; continue; }
         const img = new Image();
-        const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none' };
+        const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none', strip: d.strip || 1 };
         this.photos.push(entry);
         const check = () => { loaded++; if (loaded >= total) { this._rebuildListbox(); this._refreshNow(); this._updateStatus(this.photos.length + this._t('st.restored')); } };
         img.onload = check;
@@ -2171,6 +2198,7 @@ class PhotoTemplateApp {
     this.photos.forEach(p => {
       p.width = data.photo_w_cm;
       p.height = data.photo_h_cm;
+      p.strip = data.strip || 1;
     });
     this._scheduleRefresh();
     this._updateStatus(this._t('st.presetApplied') + data.name + this._t('st.appliedTail'));
