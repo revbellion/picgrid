@@ -135,6 +135,7 @@ const I18N = {
   'st.reordered':     { id: 'Urutan foto diubah', en: 'Photo order changed' },
   'st.undo':          { id: 'Undo', en: 'Undo' },
   'st.redo':          { id: 'Redo', en: 'Redo' },
+  'st.autoFilled':    { id: 'Slot terisi otomatis: ', en: 'Slots auto-filled: ' },
   'st.restored':      { id: ' foto dipulihkan', en: ' photos restored' },
   'st.presetApplied': { id: 'Preset \'', en: 'Preset \'' },
   'st.appliedTail':   { id: '\' diterapkan', en: '\' applied' },
@@ -173,6 +174,7 @@ const I18N = {
   'cf.clearAll':      { id: 'Hapus semua foto?', en: 'Remove all photos?' },
   'dragHint':         { id: 'Geser untuk urutkan', en: 'Drag to reorder' },
   'choosePreset':     { id: '-- Pilih Preset --', en: '-- Choose Preset --' },
+  'autoFill':         { id: 'Otomatis isi slot', en: 'Auto-fill slots' },
   'addPreviewHint':   { id: 'Tambahkan foto untuk melihat preview', en: 'Add photos to see the preview' },
 };
 
@@ -266,6 +268,7 @@ class PhotoTemplateApp {
       tileEnable: $('tile-enable'),
       tileRows: $('tile-rows'),
       tileCols: $('tile-cols'),
+      chkAutoFill: $('chk-autofill'),
 
       dialogOverlay: $('dialog-overlay'),
       dialogContent: $('dialog-content'),
@@ -332,6 +335,7 @@ class PhotoTemplateApp {
     document.getElementById('btn-save-preset').addEventListener('click', () => this._saveCurrentPresetAs());
     document.getElementById('btn-delete-preset').addEventListener('click', () => this._deletePreset());
     els.presetCombo.addEventListener('change', () => this._onPresetSelect());
+    els.chkAutoFill.addEventListener('change', () => localStorage.setItem('template-photos-autofill', els.chkAutoFill.checked ? '1' : '0'));
     document.getElementById('btn-zoom-in').addEventListener('click', () => this._zoomIn());
     document.getElementById('btn-zoom-out').addEventListener('click', () => this._zoomOut());
     document.getElementById('btn-zoom-reset').addEventListener('click', () => this._zoomReset());
@@ -923,6 +927,39 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     this._scheduleRefresh();
     this._updateStatus(this._t('st.sheet') + num + this._t('st.copies'));
+  }
+
+  _autoFillSlots() {
+    if (this.photos.length === 0) return;
+    const minMargin = this._minMargin();
+    if (minMargin < 0) return;
+    const A4_W = this._pageW();
+    const A4_H = this._pageH();
+    let capacity;
+    if (this.tileGrid) {
+      const [cols, rows] = this._tileColsRows();
+      capacity = cols * rows;
+    } else {
+      const wmm = [];
+      const hmm = [];
+      for (let k = 0; k < 500; k++) {
+        const src = this.photos[k % this.photos.length];
+        wmm.push(src.width * 10);
+        hmm.push(src.height * 10);
+      }
+      const [, next_i] = this._packRows(wmm, hmm, 0, 500, A4_W, A4_H, minMargin);
+      capacity = next_i;
+    }
+    if (capacity < 1 || this.photos.length >= capacity) return;
+    const originals = this.photos.slice();
+    this._pushUndo();
+    while (this.photos.length < capacity) {
+      const src = originals[this.photos.length % originals.length];
+      this.photos.push({ ...src, id: Date.now() + '_' + Math.random(), name: src.name + ' #' + (this.photos.length + 1), position: 'as-doc' });
+    }
+    this._rebuildListbox();
+    this._scheduleRefresh();
+    this._updateStatus(this._t('st.autoFilled') + this.photos.length + this._t('st.copies'));
   }
 
   _moveUp() {
@@ -2134,6 +2171,7 @@ class PhotoTemplateApp {
     });
     this._scheduleRefresh();
     this._updateStatus(this._t('st.presetApplied') + data.name + this._t('st.appliedTail'));
+    if (this.els.chkAutoFill.checked && this.photos.length > 0) this._autoFillSlots();
   }
 
   _saveCurrentPresetAs() {

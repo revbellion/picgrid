@@ -101,6 +101,18 @@ body {
 }
 .card-body { padding: 12px 14px; }
 
+.autofill-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.autofill-label input { cursor: pointer; }
+
 /* ---- Layout helpers ---- */
 .row {
   display: flex;
