@@ -1913,6 +1913,10 @@ class PhotoTemplateApp {
     if (data.wb_top_mm || data.wb_bottom_mm || data.wb_left_mm || data.wb_right_mm) {
       this.els.showWhiteBorder.checked = true;
     }
+    this.photos.forEach(p => {
+      p.width = data.photo_w_cm;
+      p.height = data.photo_h_cm;
+    });
     this._scheduleRefresh();
     this._updateStatus('Preset \'' + data.name + '\' diterapkan');
   }
