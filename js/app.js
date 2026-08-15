@@ -65,6 +65,10 @@ const I18N = {
   'autoRotate':       { id: 'Auto-rotate', en: 'Auto-rotate' },
   'mode':             { id: 'Mode', en: 'Mode' },
   'modeHint':         { id: 'fill=potong  fit=muat  stretch=tarik', en: 'fill=crop  fit=contain  stretch=stretch' },
+  'bgEnable':         { id: 'Ganti Latar Foto', en: 'Replace Photo BG' },
+  'bgTol':            { id: 'Toleransi', en: 'Tolerance' },
+  'bgFeather':        { id: 'Kehalusan Tepi', en: 'Edge Softness' },
+  'bgHint':           { id: 'latar terhubung tepi dihapus, diganti warna', en: 'edge-connected background replaced with color' },
   'tile':             { id: 'Tile (bagi halaman rata)', en: 'Tile (divide page evenly)' },
   'rows':             { id: 'Baris', en: 'Rows' },
   'cols':             { id: 'Kolom', en: 'Columns' },
@@ -257,6 +261,11 @@ class PhotoTemplateApp {
       wbLeft: $('wb-left'),
       wbRight: $('wb-right'),
       fitMode: $('fit-mode'),
+      bgEnable: $('bg-enable'),
+      bgColor: $('bg-color'),
+      bgTol: $('bg-tol'),
+      bgFeather: $('bg-feather'),
+      bgControls: $('bg-controls'),
       presetCombo: $('preset-combo'),
       infoLabel: $('info-label'),
       photoList: $('photo-list'),
@@ -325,6 +334,35 @@ class PhotoTemplateApp {
       els.wbLeft.addEventListener(ev, () => this._updatePreview());
       els.wbRight.addEventListener(ev, () => this._updatePreview());
       els.fitMode.addEventListener('change', () => this._scheduleRefresh());
+    els.bgEnable.addEventListener('change', () => {
+      const sel = this._getSelectedIndices();
+      if (sel.length !== 1) return;
+      this._pushUndo();
+      const p = this.photos[sel[0]];
+      p.bg = els.bgEnable.checked ? els.bgColor.value : null;
+      this._scheduleRefresh();
+      this._saveState();
+    });
+    els.bgColor.addEventListener('input', () => {
+      const sel = this._getSelectedIndices();
+      if (sel.length !== 1 || !els.bgEnable.checked) return;
+      this.photos[sel[0]].bg = els.bgColor.value;
+      this._scheduleRefresh();
+    });
+    els.bgColor.addEventListener('change', () => this._saveState());
+    const bindBgSlide = (key, elsKey) => {
+      let dragging = false;
+      els[elsKey].addEventListener('input', () => {
+        const sel = this._getSelectedIndices();
+        if (sel.length !== 1 || !els.bgEnable.checked) return;
+        if (!dragging) { this._pushUndo(); dragging = true; }
+        this.photos[sel[0]][key] = parseFloat(els[elsKey].value);
+        this._scheduleRefresh();
+      });
+      els[elsKey].addEventListener('change', () => { dragging = false; this._saveState(); });
+    };
+    bindBgSlide('bgTol', 'bgTol');
+    bindBgSlide('bgFeather', 'bgFeather');
     });
 
     document.getElementById('btn-add').addEventListener('click', () => els.fileInput.click());
@@ -1365,6 +1403,15 @@ class PhotoTemplateApp {
 
   _updateSelectionInfo() {
     const sel = this._getSelectedIndices();
+    const single = sel.length === 1;
+    this.els.bgControls.style.display = single ? '' : 'none';
+    if (single) {
+      const p = this.photos[sel[0]];
+      this.els.bgEnable.checked = !!p.bg;
+      this.els.bgColor.value = p.bg || '#e60000';
+      this.els.bgTol.value = p.bgTol ?? 18;
+      this.els.bgFeather.value = p.bgFeather ?? 1.5;
+    }
     const info = this.els.infoLabel;
     if (sel.length > 0) {
       if (info.textContent.startsWith('\u2713')) return;
@@ -1830,8 +1877,9 @@ class PhotoTemplateApp {
     const wb_r = showWB ? Math.round((parseFloat(this.els.wbRight.value) || 0) * pxPerMm) : 0;
     const N = p.strip || 1;
     const subIds = N > 1 ? this.photos.slice(idx, Math.min(idx + N, this.photos.length)).map(q => q.id + (q.rev || 0)).join(',') : '';
+    const bgSig = this.photos.slice(idx, Math.min(idx + N, this.photos.length)).map(q => (q.bg || '0') + ':' + (q.bgTol ?? 18) + ':' + (q.bgFeather ?? 1.5)).join(',');
     const cacheKey = [p.id, p.rev || 0, p.filter || 'none', slotW, slotH, p.rotation,
-      this.els.fitMode.value, showWB, wb_t, wb_b, wb_l, wb_r, this.position || 'as-doc', this.orientation || 'portrait', N, subIds].join('|');
+      this.els.fitMode.value, showWB, wb_t, wb_b, wb_l, wb_r, this.position || 'as-doc', this.orientation || 'portrait', N, subIds, bgSig].join('|');
     if (this._filterCache.has(cacheKey)) return this._filterCache.get(cacheKey);
 
     const mode = isFitPage ? 'fill' : this.els.fitMode.value;
@@ -1857,6 +1905,7 @@ class PhotoTemplateApp {
         const srcIdx = Math.min(idx + j, this.photos.length - 1);
         const sp = this.photos[srcIdx];
         let sub = this._applyRotation(sp.img, sp.rotation);
+        if (sp.bg) sub = this._replaceBackground(sub, sp.bg, sp.bgTol, sp.bgFeather);
         if (mode === 'fill') {
           sub = this._cropToAspect(sub, subW, subH);
           sub = this._resizeImage(sub, subW, subH);
@@ -1872,6 +1921,7 @@ class PhotoTemplateApp {
       }
     } else {
       let processed = this._applyRotation(p.img, p.rotation);
+      if (p.bg) processed = this._replaceBackground(processed, p.bg, p.bgTol, p.bgFeather);
       if (mode === 'fill') {
         processed = this._cropToAspect(processed, innerW, innerH);
         processed = this._resizeImage(processed, innerW, innerH);
@@ -1909,6 +1959,89 @@ class PhotoTemplateApp {
     ctx.rotate(rad);
     ctx.drawImage(img, -w / 2, -h / 2);
     return c;
+  }
+
+  _replaceBackground(img, hex, tolerance, feather) {
+    const w = img.width, h = img.height;
+    const src = document.createElement('canvas');
+    src.width = w; src.height = h;
+    const sctx = src.getContext('2d');
+    sctx.drawImage(img, 0, 0);
+    const id = sctx.getImageData(0, 0, w, h);
+    const d = id.data;
+    const cornerAvg = (cx, cy) => {
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const x = Math.min(w - 1, Math.max(0, cx + dx));
+          const y = Math.min(h - 1, Math.max(0, cy + dy));
+          const i = (y * w + x) * 4;
+          r += d[i]; g += d[i + 1]; b += d[i + 2]; n++;
+        }
+      }
+      return [r / n, g / n, b / n];
+    };
+    const c1 = cornerAvg(2, 2), c2 = cornerAvg(w - 3, 2), c3 = cornerAvg(2, h - 3), c4 = cornerAvg(w - 3, h - 3);
+    const br = (c1[0] + c2[0] + c3[0] + c4[0]) / 4;
+    const bg = (c1[1] + c2[1] + c3[1] + c4[1]) / 4;
+    const bb = (c1[2] + c2[2] + c3[2] + c4[2]) / 4;
+    const tol = (tolerance == null ? 18 : tolerance) * 2.55;
+    const distToBg = (i) => Math.abs(d[i] - br) + Math.abs(d[i + 1] - bg) + Math.abs(d[i + 2] - bb);
+    const visited = new Uint8Array(w * h);
+    const stack = [];
+    const pushEdge = (idx) => { if (!visited[idx]) { visited[idx] = 1; stack.push(idx); } };
+    for (let x = 0; x < w; x++) { pushEdge(x); pushEdge((h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { pushEdge(y * w); pushEdge(y * w + w - 1); }
+    while (stack.length) {
+      const idx = stack.pop();
+      const i = idx * 4;
+      if (d[i + 3] < 128 || distToBg(i) > tol * 3) continue;
+      d[i + 3] = 0;
+      const x = idx % w, y = (idx / w) | 0;
+      if (x > 0 && !visited[idx - 1]) { visited[idx - 1] = 1; stack.push(idx - 1); }
+      if (x < w - 1 && !visited[idx + 1]) { visited[idx + 1] = 1; stack.push(idx + 1); }
+      if (y > 0 && !visited[idx - w]) { visited[idx - w] = 1; stack.push(idx - w); }
+      if (y < h - 1 && !visited[idx + w]) { visited[idx + w] = 1; stack.push(idx + w); }
+    }
+    const fr = Math.max(0, Math.min(6, feather == null ? 1.5 : feather));
+    if (fr > 0) {
+      const rad = Math.max(1, Math.round(fr));
+      let A = new Float32Array(w * h);
+      for (let i = 0; i < A.length; i++) A[i] = d[i * 4 + 3] / 255;
+      for (let pass = 0; pass < 2; pass++) {
+        const tmp = new Float32Array(w * h);
+        for (let y = 0; y < h; y++) {
+          const row = y * w;
+          let sum = 0;
+          for (let x = 0; x <= Math.min(rad, w - 1); x++) sum += A[row + x];
+          for (let x = 0; x < w; x++) {
+            const lo = Math.max(0, x - rad), hi = Math.min(w - 1, x + rad);
+            tmp[row + x] = sum / (hi - lo + 1);
+            if (x - rad >= 0) sum -= A[row + x - rad];
+            if (x + rad + 1 < w) sum += A[row + x + rad + 1];
+          }
+        }
+        for (let x = 0; x < w; x++) {
+          let sum = 0;
+          for (let y = 0; y <= Math.min(rad, h - 1); y++) sum += tmp[y * w + x];
+          for (let y = 0; y < h; y++) {
+            const lo = Math.max(0, y - rad), hi = Math.min(h - 1, y + rad);
+            A[y * w + x] = sum / (hi - lo + 1);
+            if (y - rad >= 0) sum -= tmp[(y - rad) * w + x];
+            if (y + rad + 1 < h) sum += tmp[(y + rad + 1) * w + x];
+          }
+        }
+      }
+      for (let i = 0; i < A.length; i++) d[i * 4 + 3] = Math.round(A[i] * 255);
+    }
+    sctx.putImageData(id, 0, 0);
+    const out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    const octx = out.getContext('2d');
+    octx.fillStyle = hex;
+    octx.fillRect(0, 0, w, h);
+    octx.drawImage(src, 0, 0);
+    return out;
   }
 
   _cropToAspect(img, targetW, targetH) {
@@ -2126,6 +2259,7 @@ class PhotoTemplateApp {
       const data = this.photos.filter(p => p.dataUrl).map(p => ({
         id: p.id, name: p.name, dataUrl: p.dataUrl,
         width: p.width, height: p.height, rotation: p.rotation, filter: p.filter || 'none', strip: p.strip || 1,
+        bg: p.bg || null, bgTol: p.bgTol ?? 18, bgFeather: p.bgFeather ?? 1.5,
       }));
       localStorage.setItem('a4-photos-state', JSON.stringify(data));
       localStorage.setItem('a4-photos-position', this.position || 'as-doc');
@@ -2159,7 +2293,7 @@ class PhotoTemplateApp {
       for (const d of data) {
         if (!d.dataUrl) { loaded++; continue; }
         const img = new Image();
-        const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none', strip: d.strip || 1 };
+        const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none', strip: d.strip || 1, bg: d.bg || null, bgTol: d.bgTol ?? 18, bgFeather: d.bgFeather ?? 1.5 };
         this.photos.push(entry);
         const check = () => { loaded++; if (loaded >= total) { this._rebuildListbox(); this._refreshNow(); this._updateStatus(this.photos.length + this._t('st.restored')); } };
         img.onload = check;

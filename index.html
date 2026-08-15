@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Template Photos Maker</title>
-<link rel="stylesheet" href="css/styles.css?v=20260815c">
+<link rel="stylesheet" href="css/styles.css?v=20260815d">
 </head>
 <body>
 <div id="app">
@@ -68,6 +68,19 @@
                 <option value="stretch">stretch</option>
               </select>
               <span class="hint" data-i18n="modeHint">fill=potong&nbsp; fit=muat&nbsp; stretch=tarik</span>
+
+              <span id="bg-controls" style="display:none">
+                <label data-i18n="bgEnable">Ganti Latar Foto</label>
+                <span class="bg-row">
+                  <input type="checkbox" id="bg-enable">
+                  <input type="color" id="bg-color" value="#e60000" class="bg-color">
+                </span>
+                <label data-i18n="bgTol">Toleransi</label>
+                <input type="range" id="bg-tol" class="input-range" min="0" max="100" value="18">
+                <label data-i18n="bgFeather">Kehalusan Tepi</label>
+                <input type="range" id="bg-feather" class="input-range" min="0" max="6" step="0.5" value="1.5">
+                <span class="hint" data-i18n="bgHint">latar terhubung tepi dihapus, diganti warna</span>
+              </span>
 
               <label class="checkbox-label">
                 <input type="checkbox" id="tile-enable">
@@ -198,9 +211,10 @@
 
 <input type="file" id="file-input" multiple accept="image/*" style="display:none">
 
-<script src="js/app.js?v=20260815s"></script>
+<script src="js/app.js?v=20260815t"></script>
 </body>
 </html>
+
 
 
 
