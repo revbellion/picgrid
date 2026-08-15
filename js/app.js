@@ -122,6 +122,7 @@ const I18N = {
   'st.noImgInZip':    { id: 'Tidak ada gambar ditemukan dalam ZIP', en: 'No images found in the ZIP' },
   'st.extracted':     { id: ' gambar diekstrak dari ZIP', en: ' images extracted from ZIP' },
   'st.zipFailed':     { id: 'Gagal membaca ZIP: ', en: 'Failed to read ZIP: ' },
+  'st.zipLoading':    { id: 'Memuat pustaka ZIP…', en: 'Loading ZIP library…' },
   'st.added':         { id: ' foto ditambahkan', en: ' photos added' },
   'st.addedFailed':   { id: ' foto ditambahkan (', en: ' photos added (' },
   'st.failed':        { id: ' gagal)', en: ' failed)' },
@@ -494,8 +495,10 @@ class PhotoTemplateApp {
 
   async _addFromZip(zipFile) {
     try {
+      this._updateStatus(this._t('st.zipLoading'));
+      const JSZipLib = await this._ensureJSZip();
       const arrayBuffer = await zipFile.arrayBuffer();
-      const zip = await JSZip.loadAsync(arrayBuffer);
+      const zip = await JSZipLib.loadAsync(arrayBuffer);
       const imageFiles = [];
 
       zip.forEach((relativePath, entry) => {
@@ -539,6 +542,17 @@ class PhotoTemplateApp {
     } catch (e) {
       this._updateStatus(this._t('st.zipFailed') + e.message);
     }
+  }
+
+  _ensureJSZip() {
+    return new Promise((resolve, reject) => {
+      if (window.JSZip) return resolve(window.JSZip);
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+      s.onload = () => resolve(window.JSZip);
+      s.onerror = () => reject(new Error('jszip'));
+      document.head.appendChild(s);
+    });
   }
 
   // ---- Context menu ----
