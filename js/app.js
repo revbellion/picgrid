@@ -137,6 +137,7 @@ const I18N = {
   'st.ratioFlipped2': { id: ' foto dibalik', en: ' photos flipped' },
   'st.reordered':     { id: 'Urutan foto diubah', en: 'Photo order changed' },
   'st.undo':          { id: 'Undo', en: 'Undo' },
+  'st.redo':          { id: 'Redo', en: 'Redo' },
   'st.restored':      { id: ' foto dipulihkan', en: ' photos restored' },
   'st.presetApplied': { id: 'Preset \'', en: 'Preset \'' },
   'st.appliedTail':   { id: '\' diterapkan', en: '\' applied' },
@@ -195,6 +196,7 @@ class PhotoTemplateApp {
     this.lang = localStorage.getItem('template-photos-lang') === 'en' ? 'en' : 'id';
     this.photos = [];
     this.undoStack = [];
+    this.redoStack = [];
     this.zoomFactor = 1;
     this.panX = 0;
     this.panY = 0;
@@ -359,7 +361,8 @@ class PhotoTemplateApp {
     if (e.ctrlKey || e.metaKey) {
       switch (e.key.toLowerCase()) {
         case 'v': e.preventDefault(); this._pasteFromClipboard(); break;
-        case 'z': e.preventDefault(); this._undo(); break;
+        case 'z': e.preventDefault(); if (e.shiftKey) this._redo(); else this._undo(); break;
+        case 'y': e.preventDefault(); this._redo(); break;
         case 'a': e.preventDefault(); this._selectAll(); break;
         case 'd': e.preventDefault(); this._duplicateFast(); break;
       }
@@ -1172,11 +1175,14 @@ class PhotoTemplateApp {
   _pushUndo() {
     this.undoStack.push({ position: this.position || 'as-doc', photos: this.photos.map(p => ({ ...p, img: p.img })) });
     if (this.undoStack.length > 50) this.undoStack.shift();
+    this.redoStack = [];
   }
 
-  _undo() {
-    if (this.undoStack.length === 0) return;
-    const data = this.undoStack.pop();
+  _snapshot() {
+    return { position: this.position || 'as-doc', photos: this.photos.map(p => ({ ...p, img: p.img })) };
+  }
+
+  _restoreSnapshot(data) {
     this.position = data.position || 'as-doc';
     this.photos = data.photos.map(d => {
       const img = new Image();
@@ -1186,7 +1192,22 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     this._scheduleRefresh();
     this._saveState();
+  }
+
+  _undo() {
+    if (this.undoStack.length === 0) return;
+    this.redoStack.push(this._snapshot());
+    if (this.redoStack.length > 50) this.redoStack.shift();
+    this._restoreSnapshot(this.undoStack.pop());
     this._updateStatus(this._t('st.undo'));
+  }
+
+  _redo() {
+    if (this.redoStack.length === 0) return;
+    this.undoStack.push(this._snapshot());
+    if (this.undoStack.length > 50) this.undoStack.shift();
+    this._restoreSnapshot(this.redoStack.pop());
+    this._updateStatus(this._t('st.redo'));
   }
 
   // ---- Listbox ----
