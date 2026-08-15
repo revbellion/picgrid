@@ -65,8 +65,6 @@ const I18N = {
   'autoRotate':       { id: 'Auto-rotate', en: 'Auto-rotate' },
   'mode':             { id: 'Mode', en: 'Mode' },
   'modeHint':         { id: 'fill=potong  fit=muat  stretch=tarik', en: 'fill=crop  fit=contain  stretch=stretch' },
-  'cropX':            { id: 'Posisi X', en: 'Pos X' },
-  'cropY':            { id: 'Posisi Y', en: 'Pos Y' },
   'tile':             { id: 'Tile (bagi halaman rata)', en: 'Tile (divide page evenly)' },
   'rows':             { id: 'Baris', en: 'Rows' },
   'cols':             { id: 'Kolom', en: 'Columns' },
@@ -259,9 +257,6 @@ class PhotoTemplateApp {
       wbLeft: $('wb-left'),
       wbRight: $('wb-right'),
       fitMode: $('fit-mode'),
-      cropX: $('crop-x'),
-      cropY: $('crop-y'),
-      cropControls: $('crop-pos-controls'),
       presetCombo: $('preset-combo'),
       infoLabel: $('info-label'),
       photoList: $('photo-list'),
@@ -329,7 +324,7 @@ class PhotoTemplateApp {
       els.wbBottom.addEventListener(ev, () => this._updatePreview());
       els.wbLeft.addEventListener(ev, () => this._updatePreview());
       els.wbRight.addEventListener(ev, () => this._updatePreview());
-      els.fitMode.addEventListener('change', () => { this._scheduleRefresh(); this._updateSelectionInfo(); });
+      els.fitMode.addEventListener('change', () => this._scheduleRefresh());
     });
 
     document.getElementById('btn-add').addEventListener('click', () => els.fileInput.click());
@@ -346,19 +341,6 @@ class PhotoTemplateApp {
     document.getElementById('btn-delete-preset').addEventListener('click', () => this._deletePreset());
     els.presetCombo.addEventListener('change', () => this._onPresetSelect());
     els.chkAutoFill.addEventListener('change', () => localStorage.setItem('template-photos-autofill', els.chkAutoFill.checked ? '1' : '0'));
-    const bindCrop = (key, elsKey) => {
-      let dragging = false;
-      els[elsKey].addEventListener('input', () => {
-        const sel = this._getSelectedIndices();
-        if (sel.length !== 1) return;
-        if (!dragging) { this._pushUndo(); dragging = true; }
-        this.photos[sel[0]][key] = parseFloat(els[elsKey].value);
-        this._scheduleRefresh();
-      });
-      els[elsKey].addEventListener('change', () => { dragging = false; this._saveState(); });
-    };
-    bindCrop('cropX', 'cropX');
-    bindCrop('cropY', 'cropY');
     document.getElementById('btn-zoom-in').addEventListener('click', () => this._zoomIn());
     document.getElementById('btn-zoom-out').addEventListener('click', () => this._zoomOut());
     document.getElementById('btn-zoom-reset').addEventListener('click', () => this._zoomReset());
@@ -1383,15 +1365,6 @@ class PhotoTemplateApp {
 
   _updateSelectionInfo() {
     const sel = this._getSelectedIndices();
-    const single = sel.length === 1;
-    const fillMode = this.els.fitMode.value === 'fill';
-    const cropVisible = single && fillMode;
-    this.els.cropControls.style.display = cropVisible ? '' : 'none';
-    if (cropVisible) {
-      const p = this.photos[sel[0]];
-      this.els.cropX.value = p.cropX ?? 0.5;
-      this.els.cropY.value = p.cropY ?? 0.5;
-    }
     const info = this.els.infoLabel;
     if (sel.length > 0) {
       if (info.textContent.startsWith('\u2713')) return;
@@ -1856,11 +1829,9 @@ class PhotoTemplateApp {
     const wb_l = showWB ? Math.round((parseFloat(this.els.wbLeft.value) || 0) * pxPerMm) : 0;
     const wb_r = showWB ? Math.round((parseFloat(this.els.wbRight.value) || 0) * pxPerMm) : 0;
     const N = p.strip || 1;
-    const cropX = p.cropX ?? 0.5;
-    const cropY = p.cropY ?? 0.5;
     const subIds = N > 1 ? this.photos.slice(idx, Math.min(idx + N, this.photos.length)).map(q => q.id + (q.rev || 0)).join(',') : '';
     const cacheKey = [p.id, p.rev || 0, p.filter || 'none', slotW, slotH, p.rotation,
-      this.els.fitMode.value, showWB, wb_t, wb_b, wb_l, wb_r, this.position || 'as-doc', this.orientation || 'portrait', N, subIds, cropX, cropY].join('|');
+      this.els.fitMode.value, showWB, wb_t, wb_b, wb_l, wb_r, this.position || 'as-doc', this.orientation || 'portrait', N, subIds].join('|');
     if (this._filterCache.has(cacheKey)) return this._filterCache.get(cacheKey);
 
     const mode = isFitPage ? 'fill' : this.els.fitMode.value;
@@ -1887,7 +1858,7 @@ class PhotoTemplateApp {
         const sp = this.photos[srcIdx];
         let sub = this._applyRotation(sp.img, sp.rotation);
         if (mode === 'fill') {
-          sub = this._cropToAspect(sub, subW, subH, sp.cropX ?? 0.5, sp.cropY ?? 0.5);
+          sub = this._cropToAspect(sub, subW, subH);
           sub = this._resizeImage(sub, subW, subH);
         } else if (mode === 'fit') {
           sub = this._fitImage(sub, subW, subH);
@@ -1902,7 +1873,7 @@ class PhotoTemplateApp {
     } else {
       let processed = this._applyRotation(p.img, p.rotation);
       if (mode === 'fill') {
-        processed = this._cropToAspect(processed, innerW, innerH, cropX, cropY);
+        processed = this._cropToAspect(processed, innerW, innerH);
         processed = this._resizeImage(processed, innerW, innerH);
       } else if (mode === 'fit') {
         processed = this._fitImage(processed, innerW, innerH);
@@ -1940,20 +1911,20 @@ class PhotoTemplateApp {
     return c;
   }
 
-  _cropToAspect(img, targetW, targetH, cx = 0.5, cy = 0.5) {
+  _cropToAspect(img, targetW, targetH) {
     const targetR = targetW / targetH;
     const imgR = img.width / img.height;
     let sx, sy, sw, sh;
     if (imgR > targetR) {
       sh = img.height;
       sw = Math.round(img.height * targetR);
-      sx = Math.round((img.width - sw) * Math.min(1, Math.max(0, cx)));
+      sx = Math.round((img.width - sw) / 2);
       sy = 0;
     } else {
       sw = img.width;
       sh = Math.round(img.width / targetR);
       sx = 0;
-      sy = Math.round((img.height - sh) * Math.min(1, Math.max(0, cy)));
+      sy = Math.round((img.height - sh) / 2);
     }
     const c = document.createElement('canvas');
     c.width = sw;
@@ -2155,7 +2126,6 @@ class PhotoTemplateApp {
       const data = this.photos.filter(p => p.dataUrl).map(p => ({
         id: p.id, name: p.name, dataUrl: p.dataUrl,
         width: p.width, height: p.height, rotation: p.rotation, filter: p.filter || 'none', strip: p.strip || 1,
-        cropX: p.cropX ?? 0.5, cropY: p.cropY ?? 0.5,
       }));
       localStorage.setItem('a4-photos-state', JSON.stringify(data));
       localStorage.setItem('a4-photos-position', this.position || 'as-doc');
@@ -2189,7 +2159,7 @@ class PhotoTemplateApp {
       for (const d of data) {
         if (!d.dataUrl) { loaded++; continue; }
         const img = new Image();
-        const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none', strip: d.strip || 1, cropX: d.cropX ?? 0.5, cropY: d.cropY ?? 0.5 };
+        const entry = { id: d.id, name: d.name, file: null, dataUrl: d.dataUrl, img, width: d.width, height: d.height, rotation: d.rotation || 0, filter: d.filter || 'none', strip: d.strip || 1 };
         this.photos.push(entry);
         const check = () => { loaded++; if (loaded >= total) { this._rebuildListbox(); this._refreshNow(); this._updateStatus(this.photos.length + this._t('st.restored')); } };
         img.onload = check;
