@@ -603,6 +603,11 @@ class PhotoTemplateApp {
             this._autoRotateIfNeeded(entry);
             this._detectPhotoSize(entry);
             this.photos.push(entry);
+            // Sync sidebar for single file from zip
+            if (imageFiles.length === 1) {
+              this.els.photoWidth.value = entry.width;
+              this.els.photoHeight.value = entry.height;
+            }
             if (this.photos.length >= imageFiles.length) {
               this._rebuildListbox();
               this._refreshNow();
@@ -705,6 +710,7 @@ class PhotoTemplateApp {
     list.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     const item = list.querySelector('.photo-list-item[data-index="' + idx + '"]');
     if (item) item.classList.add('selected');
+    this._syncSidebarToPhoto();
     this._updateSelectionInfo();
     this._showContextMenu(e.clientX, e.clientY);
   }
@@ -881,6 +887,11 @@ class PhotoTemplateApp {
           entry.img = img;
           this._autoRotateIfNeeded(entry);
           this._detectPhotoSize(entry);
+          // Sync sidebar if single photo — show detected size
+          if (pending === 1) {
+            this.els.photoWidth.value = entry.width;
+            this.els.photoHeight.value = entry.height;
+          }
           loaded++;
           if (loaded >= pending) {
             this._rebuildListbox();
@@ -1490,6 +1501,16 @@ class PhotoTemplateApp {
       if (items[i]) items[i].classList.add('selected');
     });
     this._updateSelectionInfo();
+  }
+
+  // Sync sidebar width/height inputs to selected photo's actual size
+  _syncSidebarToPhoto() {
+    const sel = this._getSelectedIndices();
+    if (sel.length !== 1) return;
+    const p = this.photos[sel[0]];
+    if (!p) return;
+    this.els.photoWidth.value = p.width;
+    this.els.photoHeight.value = p.height;
   }
 
   _updateSelectionInfo() {
