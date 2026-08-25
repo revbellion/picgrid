@@ -133,6 +133,7 @@ const I18N = {
   'cm.flipH':         { id: 'Flip Horizontal', en: 'Flip Horizontal' },
   'cm.flipV':         { id: 'Flip Vertical', en: 'Flip Vertical' },
   'cm.flipRatio':     { id: 'Flip Rasio', en: 'Flip Ratio' },
+  'cm.applyOrigSize': { id: 'Terapkan Ukuran Asli', en: 'Apply Original Size' },
   'cm.duplicate':     { id: 'Duplikat...', en: 'Duplicate...' },
   'cm.color':         { id: 'Warna (Normal)', en: 'Color (Normal)' },
   'cm.gray':          { id: 'Grayscale', en: 'Grayscale' },
@@ -319,8 +320,6 @@ class PhotoTemplateApp {
       paperH: $('paper-h'),
       btnLang: $('btn-lang'),
       autoRotate: $('auto-rotate'),
-      applyOrigSize: $('apply-original-size'),
-      detectedSizeInfo: $('detected-size-info'),
       tileEnable: $('tile-enable'),
       tileRows: $('tile-rows'),
       tileCols: $('tile-cols'),
@@ -355,9 +354,7 @@ class PhotoTemplateApp {
         this.autoRotate = els.autoRotate.checked;
         this._saveState();
       });
-      els.applyOrigSize.addEventListener('change', () => {
-        this._applyOriginalSize();
-      });
+
       const syncTile = () => {
         const on = els.tileEnable.checked;
         const rows = Math.max(1, parseInt(els.tileRows.value, 10) || 1);
@@ -631,6 +628,7 @@ class PhotoTemplateApp {
     const menu = this.els.contextMenu;
     const actions = {
       'set-size': () => this._setSizeSelected(),
+      'apply-orig-size': () => this._toggleOrigSize(),
       'rotate-cw': () => this._rotateSelected(90),
       'rotate-ccw': () => this._rotateSelected(-90),
       'rotate-180': () => this._rotateSelected(180),
@@ -654,8 +652,17 @@ class PhotoTemplateApp {
 
   _showContextMenu(x, y) {
     const menu = this.els.contextMenu;
-    // Tandai filter yang sedang aktif (jika semua foto terpilih memakai filter yang sama)
+    // Mark toggle state for apply-orig-size
     const sel = this._getSelectedIndices();
+    const btn = menu.querySelector('[data-action="apply-orig-size"]');
+    if (btn) {
+      const allApplied = sel.length > 0 && sel.every(i => {
+        const p = this.photos[i];
+        return p.detectedW && p.detectedH && p.width === p.detectedW && p.height === p.detectedH;
+      });
+      btn.textContent = allApplied ? '\u2713 ' + this._t('cm.applyOrigSize') : this._t('cm.applyOrigSize');
+    }
+    // Tandai filter yang sedang aktif (jika semua foto terpilih memakai filter yang sama)
     let active = null;
     if (sel.length > 0) {
       const first = this.photos[sel[0]].filter || 'none';
@@ -842,28 +849,24 @@ class PhotoTemplateApp {
     entry.detectedPxH = h;
   }
 
-  // Apply detected size to selected photos (called by checkbox)
-  _applyOriginalSize() {
+  // Toggle original size on selected photos (context menu)
+  _toggleOrigSize() {
     const sel = this._getSelectedIndices();
-    if (sel.length === 0) {
-      // No selection: apply to ALL photos
-      if (this.photos.length === 0) return;
-      this._pushUndo();
-      this.photos.forEach(p => {
-        if (p.detectedW && p.detectedH) {
-          p.width = p.detectedW;
-          p.height = p.detectedH;
-        }
-      });
-      this._rebuildListbox();
-      this._scheduleRefresh();
-      this._updateStatus(this._t('sizeApplied'));
-      return;
-    }
+    if (sel.length === 0) return;
     this._pushUndo();
     sel.forEach(i => {
       const p = this.photos[i];
-      if (p.detectedW && p.detectedH) {
+      if (!p.detectedW || !p.detectedH) return;
+      // Toggle: if already at detected size → restore to sidebar defaults
+      if (p._origWidth !== undefined && p.width === p.detectedW && p.height === p.detectedH) {
+        p.width = p._origWidth;
+        p.height = p._origHeight;
+      } else {
+        // Save original before applying
+        if (p._origWidth === undefined) {
+          p._origWidth = p.width;
+          p._origHeight = p.height;
+        }
         p.width = p.detectedW;
         p.height = p.detectedH;
       }
@@ -871,19 +874,6 @@ class PhotoTemplateApp {
     this._rebuildListbox();
     this._reselect(sel);
     this._scheduleRefresh();
-    this._updateStatus(this._t('sizeApplied'));
-  }
-
-  // Show detected size info in sidebar
-  _showDetectedInfo(entry) {
-    const info = this.els.detectedSizeInfo;
-    if (!info || !entry) { if (info) info.textContent = ''; return; }
-    const pxW = entry.detectedPxW || '?';
-    const pxH = entry.detectedPxH || '?';
-    const w = entry.detectedW || '?';
-    const h = entry.detectedH || '?';
-    const name = entry.detectedName ? ' (' + entry.detectedName + ')' : '';
-    info.textContent = this._t('detectedSize') + w + ' × ' + h + ' cm [' + pxW + '×' + pxH + 'px]' + name;
   }
 
   _addPhotos(fileList) {
@@ -920,7 +910,6 @@ class PhotoTemplateApp {
           if (loaded >= pending) {
             this._rebuildListbox();
             this._refreshNow();
-            this._showDetectedInfo(this.photos[this.photos.length - 1]);
             this._updateStatus(loaded + this._t('st.added'));
           }
         };
@@ -1530,12 +1519,6 @@ class PhotoTemplateApp {
 
   _updateSelectionInfo() {
     const sel = this._getSelectedIndices();
-    // Show detected size for selected photo
-    if (sel.length === 1) {
-      this._showDetectedInfo(this.photos[sel[0]]);
-    } else {
-      this.els.detectedSizeInfo.textContent = '';
-    }
     const info = this.els.infoLabel;
     if (sel.length > 0) {
       if (info.textContent.startsWith('\u2713')) return;
