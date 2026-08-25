@@ -266,7 +266,6 @@ class PhotoTemplateApp {
     this._updateOrientationBtn();
     this._syncPaperUI();
     this.els.autoRotate.checked = this.autoRotate;
-    this.els.autoSetSize = $('auto-set-size');
     this.els.autoSetSize.checked = this.autoSetSize;
     this._syncTileUI();
     this._scheduleRefresh();
@@ -323,6 +322,7 @@ class PhotoTemplateApp {
       paperH: $('paper-h'),
       btnLang: $('btn-lang'),
       autoRotate: $('auto-rotate'),
+      autoSetSize: $('auto-set-size'),
       tileEnable: $('tile-enable'),
       tileRows: $('tile-rows'),
       tileCols: $('tile-cols'),
