@@ -38,31 +38,6 @@ const BUILTIN_PRESETS = [
   { name: 'KTP',            photo_w_cm: 8.56, photo_h_cm: 5.4, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
 ];
 
-// Known document types for auto-size detection
-// Each entry: { name, w_cm, h_cm, ratio } — ratio = w/h
-const DOC_TYPES = [
-  { name: 'KTP',               w_cm: 8.56, h_cm: 5.4,  ratio: 1.585 },
-  { name: 'Pasfoto 2x3',      w_cm: 2.0,  h_cm: 3.0,  ratio: 0.667 },
-  { name: 'Pasfoto 3x4',      w_cm: 3.0,  h_cm: 4.0,  ratio: 0.750 },
-  { name: 'Pasfoto 4x6',      w_cm: 4.0,  h_cm: 6.0,  ratio: 0.667 },
-  { name: 'Polaroid Mini',    w_cm: 5.4,  h_cm: 8.6,  ratio: 0.628 },
-  { name: 'Polaroid 2R',      w_cm: 6.0,  h_cm: 9.0,  ratio: 0.667 },
-  { name: 'Polaroid 7x10',    w_cm: 7.0,  h_cm: 10.0, ratio: 0.700 },
-  { name: 'Polaroid SQUARE',  w_cm: 7.0,  h_cm: 9.0,  ratio: 0.778 },
-  { name: 'Polaroid 3R',      w_cm: 8.6,  h_cm: 12.6, ratio: 0.683 },
-  { name: 'Polaroid WIDE',    w_cm: 11.0, h_cm: 9.0,  ratio: 1.222 },
-  { name: 'Polaroid 4R',      w_cm: 10.0, h_cm: 15.0, ratio: 0.667 },
-  { name: '3R',               w_cm: 8.9,  h_cm: 12.7, ratio: 0.701 },
-  { name: '4R',               w_cm: 10.2, h_cm: 15.2, ratio: 0.671 },
-  { name: '2R',               w_cm: 6.4,  h_cm: 8.9,  ratio: 0.719 },
-  { name: '5R',               w_cm: 12.7, h_cm: 17.8, ratio: 0.713 },
-  { name: '6R',               w_cm: 15.2, h_cm: 20.3, ratio: 0.749 },
-  { name: 'Resi / AWB',       w_cm: 10.0, h_cm: 14.8, ratio: 0.676 },
-  { name: 'Resi Kecil',       w_cm: 7.5,  h_cm: 10.5, ratio: 0.714 },
-  { name: 'Struk Therm 58mm', w_cm: 4.8,  h_cm: 12.0, ratio: 0.400 },
-  { name: 'Struk Therm 80mm', w_cm: 7.2,  h_cm: 12.0, ratio: 0.600 },
-];
-
 const POSITIONS = {
   'as-doc': 'As in Document',
   'fit-page': 'Fit to Page',
@@ -95,7 +70,6 @@ const I18N = {
   'hairline':         { id: 'Hairline', en: 'Hairline' },
   'cutLines':         { id: 'Garis Potong', en: 'Cut Lines' },
   'autoRotate':       { id: 'Auto-rotate', en: 'Auto-rotate' },
-  'autoSetSize':      { id: 'Auto-set ukuran asli', en: 'Auto-set actual size' },
   'mode':             { id: 'Mode', en: 'Mode' },
   'modeHint':         { id: 'fill=potong  fit=muat  stretch=tarik', en: 'fill=crop  fit=contain  stretch=stretch' },
   'tile':             { id: 'Tile (bagi halaman rata)', en: 'Tile (divide page evenly)' },
@@ -253,7 +227,6 @@ class PhotoTemplateApp {
     this.customW = 210;
     this.customH = 297;
     this.autoRotate = true;
-    this.autoSetSize = true;
     this.tileGrid = null;
     this._filterCache = new Map();
 
@@ -266,7 +239,6 @@ class PhotoTemplateApp {
     this._updateOrientationBtn();
     this._syncPaperUI();
     this.els.autoRotate.checked = this.autoRotate;
-    this.els.autoSetSize.checked = this.autoSetSize;
     this._syncTileUI();
     this._scheduleRefresh();
     this._applyLang();
@@ -322,7 +294,6 @@ class PhotoTemplateApp {
       paperH: $('paper-h'),
       btnLang: $('btn-lang'),
       autoRotate: $('auto-rotate'),
-      autoSetSize: $('auto-set-size'),
       tileEnable: $('tile-enable'),
       tileRows: $('tile-rows'),
       tileCols: $('tile-cols'),
@@ -355,10 +326,6 @@ class PhotoTemplateApp {
       els.showWhiteBorder.addEventListener('change', () => this._updatePreview());
       els.autoRotate.addEventListener('change', () => {
         this.autoRotate = els.autoRotate.checked;
-        this._saveState();
-      });
-      els.autoSetSize.addEventListener('change', () => {
-        this.autoSetSize = els.autoSetSize.checked;
         this._saveState();
       });
       const syncTile = () => {
@@ -601,13 +568,7 @@ class PhotoTemplateApp {
           img.onload = () => {
             const entry = { id: Date.now() + '_' + Math.random(), name, file: f, dataUrl: e.target.result, img, width: w, height: h, rotation: 0, filter: 'none', position: 'as-doc' };
             this._autoRotateIfNeeded(entry);
-            this._detectPhotoSize(entry);
             this.photos.push(entry);
-            // Sync sidebar for single file from zip
-            if (imageFiles.length === 1) {
-              this.els.photoWidth.value = entry.width;
-              this.els.photoHeight.value = entry.height;
-            }
             if (this.photos.length >= imageFiles.length) {
               this._rebuildListbox();
               this._refreshNow();
@@ -710,7 +671,6 @@ class PhotoTemplateApp {
     list.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     const item = list.querySelector('.photo-list-item[data-index="' + idx + '"]');
     if (item) item.classList.add('selected');
-    this._syncSidebarToPhoto();
     this._updateSelectionInfo();
     this._showContextMenu(e.clientX, e.clientY);
   }
@@ -812,51 +772,6 @@ class PhotoTemplateApp {
     }
   }
 
-  // Auto-detect photo size based on image aspect ratio
-  _detectPhotoSize(entry) {
-    if (!this.autoSetSize || !entry.img) return;
-    const iw = entry.img.naturalWidth || entry.img.width;
-    const ih = entry.img.naturalHeight || entry.img.height;
-    if (!iw || !ih) return;
-
-    // Apply rotation to get effective dimensions
-    let w = iw, h = ih;
-    const swap = entry.rotation === 90 || entry.rotation === 270;
-    if (swap) { w = ih; h = iw; }
-
-    // Check if aspect ratio matches any known document type
-    const imgRatio = w / h;
-    let bestMatch = null;
-    let bestDiff = Infinity;
-
-    for (const doc of DOC_TYPES) {
-      // Compare ratio and its inverse (handles portrait/landscape)
-      const diff1 = Math.abs(imgRatio - doc.ratio);
-      const diff2 = Math.abs(imgRatio - (1 / doc.ratio));
-      const diff = Math.min(diff1, diff2);
-      if (diff < bestDiff) {
-        bestDiff = diff;
-        bestMatch = doc;
-      }
-    }
-
-    // Tolerance: within 8% of known aspect ratio
-    if (bestMatch && bestDiff < 0.08) {
-      entry.width = bestMatch.w_cm;
-      entry.height = bestMatch.h_cm;
-      return;
-    }
-
-    // Unknown size: scale proportionally with default height 6cm
-    const refH = 6.0;
-    entry.width = Math.round((imgRatio * refH) * 10) / 10;
-    entry.height = refH;
-    // Keep landscape if image is landscape
-    if (w > h && entry.width < entry.height) {
-      [entry.width, entry.height] = [entry.height, entry.width];
-    }
-  }
-
   _addPhotos(fileList) {
     const files = Array.from(fileList).filter(f => {
       if (f.size === 0) return false;
@@ -886,12 +801,6 @@ class PhotoTemplateApp {
           entry.dataUrl = e.target.result;
           entry.img = img;
           this._autoRotateIfNeeded(entry);
-          this._detectPhotoSize(entry);
-          // Sync sidebar if single photo — show detected size
-          if (pending === 1) {
-            this.els.photoWidth.value = entry.width;
-            this.els.photoHeight.value = entry.height;
-          }
           loaded++;
           if (loaded >= pending) {
             this._rebuildListbox();
@@ -1501,16 +1410,6 @@ class PhotoTemplateApp {
       if (items[i]) items[i].classList.add('selected');
     });
     this._updateSelectionInfo();
-  }
-
-  // Sync sidebar width/height inputs to selected photo's actual size
-  _syncSidebarToPhoto() {
-    const sel = this._getSelectedIndices();
-    if (sel.length !== 1) return;
-    const p = this.photos[sel[0]];
-    if (!p) return;
-    this.els.photoWidth.value = p.width;
-    this.els.photoHeight.value = p.height;
   }
 
   _updateSelectionInfo() {
@@ -2283,7 +2182,6 @@ class PhotoTemplateApp {
       localStorage.setItem('a4-photos-paper-w', this.customW || 210);
       localStorage.setItem('a4-photos-paper-h', this.customH || 297);
       localStorage.setItem('a4-photos-autorotate', this.autoRotate ? '1' : '0');
-      localStorage.setItem('a4-photos-autosetsize', this.autoSetSize ? '1' : '0');
       localStorage.setItem('a4-photos-tile', this.tileGrid || '');
     } catch (e) {
       if (e.name === 'QuotaExceededError') console.warn('localStorage penuh');
@@ -2305,7 +2203,6 @@ class PhotoTemplateApp {
       if (pw >= 50 && pw <= 600) this.customW = pw;
       if (ph >= 50 && ph <= 600) this.customH = ph;
       this.autoRotate = localStorage.getItem('a4-photos-autorotate') !== '0';
-      this.autoSetSize = localStorage.getItem('a4-photos-autosetsize') !== '0';
       const t = localStorage.getItem('a4-photos-tile');
       if (t && /^\d+x\d+$/.test(t)) {
         const [tc, tr] = t.split('x').map(Number);
