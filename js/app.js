@@ -38,6 +38,28 @@ const BUILTIN_PRESETS = [
   { name: 'KTP',            photo_w_cm: 8.56, photo_h_cm: 5.4, wb_top_mm: 0, wb_bottom_mm: 0, wb_left_mm: 0, wb_right_mm: 0 },
 ];
 
+// Known document types for auto-size detection
+const DOC_TYPES = [
+  { name: 'KTP',               w_cm: 8.56, h_cm: 5.4,  ratio: 1.585 },
+  { name: 'Pasfoto 2x3',      w_cm: 2.0,  h_cm: 3.0,  ratio: 0.667 },
+  { name: 'Pasfoto 3x4',      w_cm: 3.0,  h_cm: 4.0,  ratio: 0.750 },
+  { name: 'Pasfoto 4x6',      w_cm: 4.0,  h_cm: 6.0,  ratio: 0.667 },
+  { name: 'Polaroid Mini',    w_cm: 5.4,  h_cm: 8.6,  ratio: 0.628 },
+  { name: 'Polaroid 2R',      w_cm: 6.0,  h_cm: 9.0,  ratio: 0.667 },
+  { name: 'Polaroid 7x10',    w_cm: 7.0,  h_cm: 10.0, ratio: 0.700 },
+  { name: 'Polaroid 3R',      w_cm: 8.6,  h_cm: 12.6, ratio: 0.683 },
+  { name: 'Polaroid 4R',      w_cm: 10.0, h_cm: 15.0, ratio: 0.667 },
+  { name: '3R',               w_cm: 8.9,  h_cm: 12.7, ratio: 0.701 },
+  { name: '4R',               w_cm: 10.2, h_cm: 15.2, ratio: 0.671 },
+  { name: '2R',               w_cm: 6.4,  h_cm: 8.9,  ratio: 0.719 },
+  { name: '5R',               w_cm: 12.7, h_cm: 17.8, ratio: 0.713 },
+  { name: '6R',               w_cm: 15.2, h_cm: 20.3, ratio: 0.749 },
+  { name: 'Resi / AWB',       w_cm: 10.0, h_cm: 14.8, ratio: 0.676 },
+  { name: 'Resi Kecil',       w_cm: 7.5,  h_cm: 10.5, ratio: 0.714 },
+  { name: 'Struk Therm 58mm', w_cm: 4.8,  h_cm: 12.0, ratio: 0.400 },
+  { name: 'Struk Therm 80mm', w_cm: 7.2,  h_cm: 12.0, ratio: 0.600 },
+];
+
 const POSITIONS = {
   'as-doc': 'As in Document',
   'fit-page': 'Fit to Page',
@@ -70,6 +92,9 @@ const I18N = {
   'hairline':         { id: 'Hairline', en: 'Hairline' },
   'cutLines':         { id: 'Garis Potong', en: 'Cut Lines' },
   'autoRotate':       { id: 'Auto-rotate', en: 'Auto-rotate' },
+  'applyOrigSize':    { id: 'Terapkan ukuran asli', en: 'Apply original size' },
+  'detectedSize':     { id: 'Ukuran terdeteksi: ', en: 'Detected size: ' },
+  'sizeApplied':      { id: 'Ukuran asli diterapkan', en: 'Original size applied' },
   'mode':             { id: 'Mode', en: 'Mode' },
   'modeHint':         { id: 'fill=potong  fit=muat  stretch=tarik', en: 'fill=crop  fit=contain  stretch=stretch' },
   'tile':             { id: 'Tile (bagi halaman rata)', en: 'Tile (divide page evenly)' },
@@ -294,6 +319,8 @@ class PhotoTemplateApp {
       paperH: $('paper-h'),
       btnLang: $('btn-lang'),
       autoRotate: $('auto-rotate'),
+      applyOrigSize: $('apply-original-size'),
+      detectedSizeInfo: $('detected-size-info'),
       tileEnable: $('tile-enable'),
       tileRows: $('tile-rows'),
       tileCols: $('tile-cols'),
@@ -327,6 +354,9 @@ class PhotoTemplateApp {
       els.autoRotate.addEventListener('change', () => {
         this.autoRotate = els.autoRotate.checked;
         this._saveState();
+      });
+      els.applyOrigSize.addEventListener('change', () => {
+        this._applyOriginalSize();
       });
       const syncTile = () => {
         const on = els.tileEnable.checked;
@@ -772,6 +802,90 @@ class PhotoTemplateApp {
     }
   }
 
+  // Detect photo's original size — STORES on entry, does NOT apply
+  _detectPhotoSize(entry) {
+    if (!entry.img) return;
+    const iw = entry.img.naturalWidth || entry.img.width;
+    const ih = entry.img.naturalHeight || entry.img.height;
+    if (!iw || !ih) return;
+
+    let w = iw, h = ih;
+    const swap = entry.rotation === 90 || entry.rotation === 270;
+    if (swap) { w = ih; h = iw; }
+
+    const imgRatio = w / h;
+    let bestMatch = null;
+    let bestDiff = Infinity;
+
+    for (const doc of DOC_TYPES) {
+      const diff1 = Math.abs(imgRatio - doc.ratio);
+      const diff2 = Math.abs(imgRatio - (1 / doc.ratio));
+      const diff = Math.min(diff1, diff2);
+      if (diff < bestDiff) { bestDiff = diff; bestMatch = doc; }
+    }
+
+    if (bestMatch && bestDiff < 0.08) {
+      entry.detectedW = bestMatch.w_cm;
+      entry.detectedH = bestMatch.h_cm;
+      entry.detectedName = bestMatch.name;
+    } else {
+      const refH = 6.0;
+      let dw = Math.round((imgRatio * refH) * 10) / 10;
+      let dh = refH;
+      if (w > h && dw < dh) { [dw, dh] = [dh, dw]; }
+      entry.detectedW = dw;
+      entry.detectedH = dh;
+      entry.detectedName = null;
+    }
+    entry.detectedRatio = imgRatio;
+    entry.detectedPxW = w;
+    entry.detectedPxH = h;
+  }
+
+  // Apply detected size to selected photos (called by checkbox)
+  _applyOriginalSize() {
+    const sel = this._getSelectedIndices();
+    if (sel.length === 0) {
+      // No selection: apply to ALL photos
+      if (this.photos.length === 0) return;
+      this._pushUndo();
+      this.photos.forEach(p => {
+        if (p.detectedW && p.detectedH) {
+          p.width = p.detectedW;
+          p.height = p.detectedH;
+        }
+      });
+      this._rebuildListbox();
+      this._scheduleRefresh();
+      this._updateStatus(this._t('sizeApplied'));
+      return;
+    }
+    this._pushUndo();
+    sel.forEach(i => {
+      const p = this.photos[i];
+      if (p.detectedW && p.detectedH) {
+        p.width = p.detectedW;
+        p.height = p.detectedH;
+      }
+    });
+    this._rebuildListbox();
+    this._reselect(sel);
+    this._scheduleRefresh();
+    this._updateStatus(this._t('sizeApplied'));
+  }
+
+  // Show detected size info in sidebar
+  _showDetectedInfo(entry) {
+    const info = this.els.detectedSizeInfo;
+    if (!info || !entry) { if (info) info.textContent = ''; return; }
+    const pxW = entry.detectedPxW || '?';
+    const pxH = entry.detectedPxH || '?';
+    const w = entry.detectedW || '?';
+    const h = entry.detectedH || '?';
+    const name = entry.detectedName ? ' (' + entry.detectedName + ')' : '';
+    info.textContent = this._t('detectedSize') + w + ' × ' + h + ' cm [' + pxW + '×' + pxH + 'px]' + name;
+  }
+
   _addPhotos(fileList) {
     const files = Array.from(fileList).filter(f => {
       if (f.size === 0) return false;
@@ -801,10 +915,12 @@ class PhotoTemplateApp {
           entry.dataUrl = e.target.result;
           entry.img = img;
           this._autoRotateIfNeeded(entry);
+          this._detectPhotoSize(entry);
           loaded++;
           if (loaded >= pending) {
             this._rebuildListbox();
             this._refreshNow();
+            this._showDetectedInfo(this.photos[this.photos.length - 1]);
             this._updateStatus(loaded + this._t('st.added'));
           }
         };
@@ -1414,6 +1530,12 @@ class PhotoTemplateApp {
 
   _updateSelectionInfo() {
     const sel = this._getSelectedIndices();
+    // Show detected size for selected photo
+    if (sel.length === 1) {
+      this._showDetectedInfo(this.photos[sel[0]]);
+    } else {
+      this.els.detectedSizeInfo.textContent = '';
+    }
     const info = this.els.infoLabel;
     if (sel.length > 0) {
       if (info.textContent.startsWith('\u2713')) return;
